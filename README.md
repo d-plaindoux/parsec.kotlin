@@ -2,7 +2,7 @@
 
 Material done for a [Lambdada](http://lambdada.org) session.
 
-# Objectives 
+# Objective 
 
 A [parser combinator library](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper-letter.pdf)
 implementation from scratch in [Kotlin](https://kotlinlang.org).
