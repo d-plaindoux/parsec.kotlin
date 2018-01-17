@@ -3,7 +3,7 @@ package lambdada.parsec.extension
 import org.junit.Assert
 import org.junit.Test
 
-class ExtensionsTests {
+class T00_Extensions {
     @Test
     fun shouldReturn1() {
         Assert.assertEquals(listOf('1').toInt(), 1)

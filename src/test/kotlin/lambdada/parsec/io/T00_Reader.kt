@@ -3,7 +3,7 @@ package lambdada.parsec.io
 import org.junit.Assert
 import org.junit.Test
 
-class ReaderTests {
+class T00_Reader {
 
     @Test
     fun shouldReturnSomething() {

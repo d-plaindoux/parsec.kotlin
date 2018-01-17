@@ -1,5 +1,5 @@
 package lambdada.parsec.parser
 
-class ResponseTest {
+class T00_Response {
 
 }

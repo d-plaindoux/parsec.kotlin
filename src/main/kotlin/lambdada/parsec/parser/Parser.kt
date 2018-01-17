@@ -5,48 +5,51 @@ import lambdada.parsec.extension.toInt
 import lambdada.parsec.io.Reader
 import java.util.*
 
-typealias ParseFn<A> = (Reader) -> Response<A>
-
 //
-// Parser class providing pseudo-Monadic ADT
+// Parser type definition
 //
 
-class Parser<A>(val parse: ParseFn<A>) {
+typealias Parser<A> = (Reader) -> Response<A>
 
-    infix fun <B> map(f: (A) -> B): Parser<B> = Parser { s -> parse(s).map(f) }
+//
+// Parser providing pseudo-Monadic ADT
+//
 
-    infix fun <B> flatMap(f: (A) -> Parser<B>): Parser<B> =
-            Parser { s ->
-                parse(s).fold(
-                        { a ->
-                            f(a.value).parse(a.input).fold(
-                                            { b -> Accept(b.value, b.input, a.consumed || b.consumed) },
-                                            { r -> Reject<B>(a.consumed || r.consumed) }
-                                    )
-                        },
-                        { r -> Reject(r.consumed) }
-                )
-            }
-}
+infix fun <A, B> Parser<A>.map(f: (A) -> B): Parser<B> =
+        { this.invoke(it).map(f) }
+
+infix fun <A, B> Parser<A>.flatMap(f: (A) -> Parser<B>): Parser<B> =
+        {
+            this(it).fold(
+                    { a ->
+                        f(a.value)(a.input).fold(
+                                { b -> Accept(b.value, b.input, a.consumed || b.consumed) },
+                                { r -> Reject(a.consumed || r.consumed) }
+                        )
+                    },
+                    { r -> Reject(r.consumed) }
+            )
+        }
 
 //
 // Basic parsers
 //
 
 fun <A> returns(v: A): Parser<A> =
-        Parser { Accept(v, it, false) }
+        { Accept(v, it, false) }
 
 fun <A> fails(): Parser<A> =
-        Parser { Reject<A>(false) }
+        { Reject(false) }
 
 fun <B> lazy(f: () -> Parser<B>): Parser<B> =
-        Parser { f().parse(it) }
+        { f()(it) }
 
 //
 // Filtering
 //
 
-infix fun <A> Parser<A>.filter(p: (A) -> Boolean): Parser<A> = this flatMap { if (p(it)) returns(it) else fails() }
+infix fun <A> Parser<A>.filter(p: (A) -> Boolean): Parser<A> =
+        this flatMap { if (p(it)) returns(it) else fails() }
 
 //
 // Flow
@@ -57,14 +60,14 @@ infix fun <A, B> Parser<A>.then(f: Parser<B>): Parser<Pair<A, B>> =
         this flatMap { a -> f map { Pair(a, it) } }
 
 infix fun <A> Parser<A>.or(f: Parser<A>): Parser<A> =
-        Parser { s ->
-            parse(s).fold<Response<A>>(
+        { s ->
+            this(s).fold<Response<A>>(
                     { a -> a },
                     { r ->
                         if (r.consumed) {
                             r
                         } else {
-                            f.parse(s)
+                            f(s)
                         }
                     }
             )
@@ -74,7 +77,7 @@ infix fun <A> Parser<A>.or(f: Parser<A>): Parser<A> =
 //
 
 val any: Parser<Char> =
-        Parser { s -> s.getChar().fold({ Accept(it.first, it.second, true) }, { Reject<Char>(false) }) }
+        { it.getChar().fold({ Accept(it.first, it.second, true) }, { Reject(false) }) }
 
 val eos: Parser<Unit> =
         any then fails<Unit>() map { Unit } or returns(Unit)
@@ -84,7 +87,7 @@ val eos: Parser<Unit> =
 //
 
 fun <A> doTry(p: Parser<A>): Parser<A> =
-        Parser { s -> p.parse(s).fold({ it }, { Reject<A>(false) }) }
+        { p(it).fold({ it }, { Reject(false) }) }
 
 //
 // Kleene operator, optional
