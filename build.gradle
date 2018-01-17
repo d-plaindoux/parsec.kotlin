@@ -1,0 +1,50 @@
+buildscript {
+    ext.kotlin_version = '1.2.20-eap-71'
+
+    repositories {
+        mavenCentral()
+        maven {
+            url 'http://dl.bintray.com/kotlin/kotlin-eap'
+        }
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+apply plugin: 'kotlin'
+
+kotlin_version = '1.2.20-eap-71'
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'http://dl.bintray.com/kotlin/kotlin-eap'
+    }
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+}
+
+test {
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
