@@ -1,5 +1,7 @@
 # Parser Combinator in Kotlin
 
+[![Build Status](https://travis-ci.org/d-plaindoux/parsec.kotlin.svg?branch=master)](https://travis-ci.org/d-plaindoux/parsec.kotlin)
+
 Material done for a [Lambdada](http://lambdada.org) session.
 
 # Objective 
