@@ -48,8 +48,8 @@ fun <B> lazy(f: () -> Parser<B>): Parser<B> =
 // Filtering
 //
 
-infix fun <A> Parser<A>.filter(p: (A) -> Boolean): Parser<A> =
-        this flatMap { if (p(it)) returns(it) else fails() }
+infix fun <A> Parser<A>.satisfy(p: (A) -> Boolean): Parser<A> =
+        doTry(this flatMap { if (p(it)) returns(it) else fails() })
 
 //
 // Flow
@@ -108,11 +108,11 @@ fun <A> rep(p: Parser<A>): Parser<List<A>> =
 // Specific Char parsers
 //
 
-fun char(c: Char): Parser<Char> = any filter { c == it }
+fun char(c: Char): Parser<Char> = any satisfy { c == it }
 
-fun charIn(s: CharRange): Parser<Char> = any filter { s.contains(it) }
+fun charIn(s: CharRange): Parser<Char> = any satisfy { s.contains(it) }
 
-fun charIn(s: String): Parser<Char> = any filter { s.contains(it) }
+fun charIn(s: String): Parser<Char> = any satisfy { s.contains(it) }
 
 //
 // Integer parser
