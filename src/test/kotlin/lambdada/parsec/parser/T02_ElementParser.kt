@@ -10,7 +10,7 @@ class T02_ElementParser {
     fun shouldAnyParserReturnsAccept() {
         val parser = any
 
-        Assert.assertEquals(parser(Reader.new("a")).fold({ it.value == 'a' }, { false }), true)
+        Assert.assertEquals(parser(Reader.new("a")).fold({ it.value == 'a' && it.consumed }, { false }), true)
     }
 
     @Test
@@ -46,6 +46,20 @@ class T02_ElementParser {
         val parser = (doTry(any then any map { it.first }) or any) then eos
 
         Assert.assertEquals(parser(Reader.new("a")).fold({ true }, { false }), true)
+    }
+
+    @Test
+    fun shouldSatisfyParserReturnsAccept() {
+        val parser = any satisfy { it == 'a'}
+
+        Assert.assertEquals(parser(Reader.new("a")).fold({ it.value == 'a' && it.consumed }, { false }), true)
+    }
+
+    @Test
+    fun shouldNotSatisfyOrAnyParserReturnsAccept() {
+        val parser = doTry(any satisfy { it == 'a'}) or any
+
+        Assert.assertEquals(parser(Reader.new("b")).fold({ it.value == 'b' && it.consumed }, { false }), true)
     }
 
 }

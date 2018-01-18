@@ -24,10 +24,10 @@ infix fun <A, B> Parser<A>.flatMap(f: (A) -> Parser<B>): Parser<B> =
                     { a ->
                         f(a.value)(a.input).fold(
                                 { b -> Accept(b.value, b.input, a.consumed || b.consumed) },
-                                { r -> Reject(a.consumed || r.consumed) }
+                                { r -> Reject(r.position, a.consumed || r.consumed) }
                         )
                     },
-                    { r -> Reject(r.consumed) }
+                    { r -> Reject(r.position, r.consumed) }
             )
         }
 
@@ -39,17 +39,10 @@ fun <A> returns(v: A): Parser<A> =
         { Accept(v, it, false) }
 
 fun <A> fails(): Parser<A> =
-        { Reject(false) }
+        { Reject(it.offset, false) }
 
 fun <B> lazy(f: () -> Parser<B>): Parser<B> =
         { f()(it) }
-
-//
-// Filtering
-//
-
-infix fun <A> Parser<A>.satisfy(p: (A) -> Boolean): Parser<A> =
-        doTry(this flatMap { if (p(it)) returns(it) else fails() })
 
 //
 // Flow
@@ -77,7 +70,7 @@ infix fun <A> Parser<A>.or(f: Parser<A>): Parser<A> =
 //
 
 val any: Parser<Char> =
-        { it.getChar().fold({ Accept(it.first, it.second, true) }, { Reject(false) }) }
+        { r -> r.getChar().fold({ Accept(it.first, it.second, true) }, { Reject(r.offset, false) }) }
 
 val eos: Parser<Unit> =
         any then fails<Unit>() map { Unit } or returns(Unit)
@@ -87,7 +80,14 @@ val eos: Parser<Unit> =
 //
 
 fun <A> doTry(p: Parser<A>): Parser<A> =
-        { p(it).fold({ it }, { Reject(false) }) }
+        { r -> p(r).fold({ it }, { Reject(r.offset, false) }) }
+
+//
+// Filtering
+//
+
+infix fun <A> Parser<A>.satisfy(p: (A) -> Boolean): Parser<A> =
+        this flatMap { if (p(it)) returns(it) else fails() }
 
 //
 // Kleene operator, optional
@@ -108,16 +108,16 @@ fun <A> rep(p: Parser<A>): Parser<List<A>> =
 // Specific Char parsers
 //
 
-fun char(c: Char): Parser<Char> = any satisfy { c == it }
+fun char(c: Char): Parser<Char> = doTry(any satisfy { c == it })
 
-fun charIn(s: CharRange): Parser<Char> = any satisfy { s.contains(it) }
+fun charIn(s: CharRange): Parser<Char> = doTry(any satisfy { s.contains(it) })
 
-fun charIn(s: String): Parser<Char> = any satisfy { s.contains(it) }
+fun charIn(s: String): Parser<Char> = doTry(any satisfy { s.contains(it) })
 
 //
 // Integer parser
 //
 
-val integer: Parser<Int> = charIn("-+") then rep(charIn('0'..'9')) map { (s, n) -> (listOf(s) + n).toInt() }
+val integer: Parser<Int> = opt(charIn("-+")) map { it.orElse('+') } then rep(charIn('0'..'9')) map { (s, n) -> (listOf(s) + n).toInt() }
 
-// etc.
+// Integer or Array of Integer (JSON fragment)

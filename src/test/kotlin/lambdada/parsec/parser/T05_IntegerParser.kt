@@ -4,7 +4,7 @@ import lambdada.parsec.io.Reader
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class T05_ComplexParser {
+class T05_IntegerParser {
 
     @Test
     fun shouldPositiveIntegerParserReturnAccept() {

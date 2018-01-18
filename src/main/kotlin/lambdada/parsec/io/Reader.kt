@@ -2,7 +2,7 @@ package lambdada.parsec.io
 
 import java.util.*
 
-class Reader(private val source: String, private val offset: Int) {
+class Reader(val source: String, val offset: Int) {
 
     companion object {
         fun new(s:String) : Reader = Reader(s,0)

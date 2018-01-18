@@ -47,4 +47,13 @@ class T04_CharParser {
 
         assertEquals(parser(Reader.new("/")).fold({ false }, { true }), true)
     }
+
+
+    @Test
+    fun shouldCharParserOrParserReturnsAccept() {
+        val parser = char('a') or char('b')
+
+        assertEquals(parser(Reader.new("b")).fold({ it.value == 'b' }, { false }), true)
+    }
+
 }
