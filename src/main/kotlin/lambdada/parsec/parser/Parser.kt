@@ -119,5 +119,3 @@ fun charIn(s: String): Parser<Char> = doTry(any satisfy { s.contains(it) })
 //
 
 val integer: Parser<Int> = opt(charIn("-+")) map { it.orElse('+') } then rep(charIn('0'..'9')) map { (s, n) -> (listOf(s) + n).toInt() }
-
-// Integer or Array of Integer (JSON fragment)
