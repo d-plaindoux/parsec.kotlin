@@ -57,10 +57,9 @@ infix fun <A> Parser<A>.or(f: Parser<A>): Parser<A> =
             this(s).fold<Response<A>>(
                     { a -> a },
                     { r ->
-                        if (r.consumed) {
-                            r
-                        } else {
-                            f(s)
+                        when (r.consumed) {
+                            true -> r
+                            false -> f(s)
                         }
                     }
             )
