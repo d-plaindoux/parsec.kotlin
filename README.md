@@ -1,6 +1,7 @@
 # Parser Combinator in Kotlin
 
 [![Build Status](https://travis-ci.org/d-plaindoux/parsec.kotlin.svg?branch=master)](https://travis-ci.org/d-plaindoux/parsec.kotlin)
+[![experimental](http://badges.github.io/stability-badges/dist/experimental.svg)](http://github.com/badges/stability-badges)
 
 Material done for a [Lambdada](http://lambdada.org) session.
 
