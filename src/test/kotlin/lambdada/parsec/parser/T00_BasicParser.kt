@@ -29,7 +29,7 @@ class T00_BasicParser {
 
     @Test
     fun shouldFlapMappedReturnsParserReturnsAccept() {
-        val parser = returns('a') flatMap { s -> returns(s + "b") } map { it == "ab" }
+        val parser = returns('a') flatMap { returns(it + "b") } map { it == "ab" }
 
         Assert.assertEquals(parser(Reader.new("")).fold({ it.value }, { false }), true)
     }
@@ -54,9 +54,5 @@ class T00_BasicParser {
 
         Assert.assertEquals(parser(Reader.new("")).fold({ false }, { true }), true)
     }
-
-    //
-    // Flow
-    //
 
 }
