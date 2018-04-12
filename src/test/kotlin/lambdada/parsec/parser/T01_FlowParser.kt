@@ -8,9 +8,9 @@ class T01_FlowParser {
 
     @Test
     fun shouldSequenceParserReturnsAccept() {
-        val parser = returns('a') then returns('b')
+        val parser = returns('a') then returns(1)
 
-        Assert.assertEquals(parser(Reader.new("")).fold({ it.value == Pair('a','b') }, { false }), true)
+        Assert.assertEquals(parser(Reader.new("")).fold({ it.value == Pair('a',1) }, { false }), true)
     }
 
     @Test
@@ -18,6 +18,20 @@ class T01_FlowParser {
         val parser = returns('a') then fails<Unit>()
 
         Assert.assertEquals(parser(Reader.new("")).fold({ false }, { true }), true)
+    }
+
+    @Test
+    fun shouldSequenceParserReturnsAcceptWithLeftValue() {
+        val parser = returns('a') thenLeft returns(1)
+
+        Assert.assertEquals(parser(Reader.new("")).fold({ it.value == 'a' }, { false }), true)
+    }
+
+    @Test
+    fun shouldSequenceParserReturnsAcceptWithRightValue() {
+        val parser = returns('a') thenRight returns(1)
+
+        Assert.assertEquals(parser(Reader.new("")).fold({ it.value == 1 }, { false }), true)
     }
 
     @Test

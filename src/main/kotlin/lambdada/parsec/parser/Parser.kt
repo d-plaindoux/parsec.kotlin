@@ -1,6 +1,7 @@
 package lambdada.parsec.parser
 
 import lambdada.parsec.extension.fold
+import lambdada.parsec.extension.next
 import lambdada.parsec.extension.toInt
 import lambdada.parsec.io.Reader
 import java.util.*
@@ -16,11 +17,11 @@ typealias Parser<A> = (Reader) -> Response<A>
 //
 
 infix fun <A, B> Parser<A>.map(f: (A) -> B): Parser<B> =
-        { this.invoke(it).map(f) }
+        { reader -> this.invoke(reader).map(f) } // Similar to Object#apply in Scala
 
 infix fun <A, B> Parser<A>.flatMap(f: (A) -> Parser<B>): Parser<B> =
-        {
-            this(it).fold(
+        { reader ->
+            this(reader).fold(
                     { a ->
                         f(a.value)(a.input).fold(
                                 { b -> Accept(b.value, b.input, a.consumed || b.consumed) },
@@ -35,11 +36,11 @@ infix fun <A, B> Parser<A>.flatMap(f: (A) -> Parser<B>): Parser<B> =
 // Basic parsers
 //
 
-fun <A> returns(v: A): Parser<A> =
-        { Accept(v, it, false) }
+fun <A> returns(v: A, consumed: Boolean = false): Parser<A> =
+        { Accept(v, it, consumed) }
 
-fun <A> fails(): Parser<A> =
-        { Reject(it.offset, false) }
+fun <A> fails(consumed: Boolean = false): Parser<A> =
+        { Reject(it.offset, consumed) }
 
 fun <B> lazy(f: () -> Parser<B>): Parser<B> =
         { f()(it) }
@@ -48,14 +49,14 @@ fun <B> lazy(f: () -> Parser<B>): Parser<B> =
 // Flow
 //
 
-// NOTE: do { ... } comprehension should be better
+// NOTE: [do] comprehension should be better
 infix fun <A, B> Parser<A>.then(f: Parser<B>): Parser<Pair<A, B>> =
-        this flatMap { a -> f map { Pair(a, it) } }
+        this flatMap { a -> f map { b -> Pair(a, b) } }
 
 infix fun <A> Parser<A>.or(f: Parser<A>): Parser<A> =
         { s ->
             this(s).fold<Response<A>>(
-                    { a -> a },
+                    { it },
                     { r ->
                         when (r.consumed) {
                             true -> r
@@ -64,12 +65,23 @@ infix fun <A> Parser<A>.or(f: Parser<A>): Parser<A> =
                     }
             )
         }
+
+//
+// Alternate Then
+//
+
+infix fun <A, B> Parser<A>.thenLeft(f: Parser<B>): Parser<A> =
+        this then f map { it.first }
+
+infix fun <A, B> Parser<A>.thenRight(f: Parser<B>): Parser<B> =
+        this then f map { it.second }
+
 //
 // Element parser
 //
 
 val any: Parser<Char> =
-        { r -> r.getChar().fold({ Accept(it.first, it.second, true) }, { Reject(r.offset, false) }) }
+        { r -> r.next().fold({ returns(it.first, true)(it.second) }, { fails<Char>(false)(r) }) }
 
 val eos: Parser<Unit> =
         any then fails<Unit>() map { Unit } or returns(Unit)
@@ -79,7 +91,7 @@ val eos: Parser<Unit> =
 //
 
 fun <A> doTry(p: Parser<A>): Parser<A> =
-        { r -> p(r).fold({ it }, { Reject(r.offset, false) }) }
+        { r -> p(r).fold({ it }, { fails<A>(false)(r) }) }
 
 //
 // Filtering
@@ -92,7 +104,7 @@ infix fun <A> Parser<A>.satisfy(p: (A) -> Boolean): Parser<A> =
 // Kleene operator, optional
 //
 
-// NOTE: Greedy parsers
+// NOTE: Greedy parsers | Prefix i.e. Function vs. Method
 
 fun <A> opt(p: Parser<A>): Parser<Optional<A>> =
         p.map { Optional.of(it) } or returns(Optional.empty())
@@ -114,7 +126,20 @@ fun charIn(s: CharRange): Parser<Char> = doTry(any satisfy { s.contains(it) })
 fun charIn(s: String): Parser<Char> = doTry(any satisfy { s.contains(it) })
 
 //
+// Characters parser
+//
+
+fun string(s: String): Parser<String> =
+        s.next().fold(
+                { (c, sp) ->
+                    sp.fold(char(c), { p, c -> p thenRight char(c) }) thenRight returns(s, true)
+                },
+                { returns(s) }
+        )
+
+//
 // Integer parser
 //
 
-val integer: Parser<Int> = opt(charIn("-+")) map { it.orElse('+') } then rep(charIn('0'..'9')) map { (s, n) -> (listOf(s) + n).toInt() }
+val integer: Parser<Int> =
+        opt(charIn("-+")) map { it.orElse('+') } then rep(charIn('0'..'9')) map { (s, n) -> (listOf(s) + n).toInt() }
