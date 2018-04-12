@@ -1,8 +1,9 @@
 package lambdada.parsec.parser
 
 import lambdada.parsec.extension.fold
+import lambdada.parsec.extension.int
 import lambdada.parsec.extension.next
-import lambdada.parsec.extension.toInt
+import lambdada.parsec.extension.string
 import lambdada.parsec.io.Reader
 import java.util.*
 
@@ -86,6 +87,8 @@ val any: Parser<Char> =
 val eos: Parser<Unit> =
         any then fails<Unit>() map { Unit } or returns(Unit)
 
+fun not(p: Parser<Char>): Parser<Char> = (p thenRight fails<Char>(true)) or any
+
 //
 // Backtrack parser
 //
@@ -137,9 +140,12 @@ fun string(s: String): Parser<String> =
                 { returns(s) }
         )
 
+val delimitedString: Parser<String> =
+        char('"') thenRight optRep(not(char('"'))) thenLeft char('"') map { it.string() }
+
 //
 // Integer parser
 //
 
 val integer: Parser<Int> =
-        opt(charIn("-+")) map { it.orElse('+') } then rep(charIn('0'..'9')) map { (s, n) -> (listOf(s) + n).toInt() }
+        opt(charIn("-+")) map { it.orElse('+') } then rep(charIn('0'..'9')) map { (s, n) -> (listOf(s) + n).int() }

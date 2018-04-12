@@ -4,7 +4,10 @@ package lambdada.parsec.extension
 // Conversion
 //
 
-fun List<Char>.toInt(): Int = this.toCharArray().joinToString(separator = "").toInt()
+
+fun List<Char>.string(): String = this.toCharArray().joinToString(separator = "")
+
+fun List<Char>.int(): Int = this.string().toInt()
 
 //
 // Optional catamorphism
