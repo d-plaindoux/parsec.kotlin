@@ -51,7 +51,7 @@ fun <B> lazy(f: () -> Parser<B>): Parser<B> =
 
 // NOTE: [do] comprehension should be better
 infix fun <A, B> Parser<A>.then(f: Parser<B>): Parser<Pair<A, B>> =
-        this flatMap { a -> f map { b -> Pair(a, b) } }
+        this flatMap { a -> f map { b -> a to b } }
 
 infix fun <A> Parser<A>.or(f: Parser<A>): Parser<A> =
         { s ->

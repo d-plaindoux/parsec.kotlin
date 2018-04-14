@@ -10,7 +10,7 @@ class T01_FlowParser {
     fun shouldSequenceParserReturnsAccept() {
         val parser = returns('a') then returns(1)
 
-        Assert.assertEquals(parser(Reader.new("")).fold({ it.value == Pair('a',1) }, { false }), true)
+        Assert.assertEquals(parser(Reader.new("")).fold({ it.value == 'a' to 1 }, { false }), true)
     }
 
     @Test

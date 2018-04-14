@@ -9,6 +9,6 @@ class Reader(private val source: String, val offset: Int) {
     }
 
     fun next(): Pair<Char, Reader>? =
-            source.next()?.let { (c, s) -> Pair(c, Reader(s, offset + 1)) }
+            source.next()?.let { (c, s) -> c to Reader(s, offset + 1) }
 
 }
