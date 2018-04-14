@@ -1,13 +1,15 @@
 package lambdada.parsec.extension
 
 //
-// Conversion
+// List conversion
 //
 
 
-fun List<Char>.string(): String = this.toCharArray().joinToString(separator = "")
+fun List<Char>.charsToString(): String = this.toCharArray().joinToString(separator = "")
 
-fun List<Char>.int(): Int = this.string().toInt()
+fun List<String>.stringsToString(): String = this.joinToString(separator = "")
+
+fun List<Char>.charsToInt(): Int = this.charsToString().toInt()
 
 //
 // Optional catamorphism
@@ -16,7 +18,7 @@ fun List<Char>.int(): Int = this.string().toInt()
 fun <A, B> A?.fold(s: (A) -> B, e: () -> B): B = this?.let { s(it) } ?: e()
 
 //
-// String
+// String split
 
 fun String.next(): Pair<Char, String>? =
         if (this.isEmpty()) {

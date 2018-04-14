@@ -62,4 +62,17 @@ class T02_ElementParser {
         Assert.assertEquals(parser(Reader.new("b")).fold({ it.value == 'b' && it.consumed }, { false }), true)
     }
 
+    @Test
+    fun shouldNotCharParserReturnsAccept() {
+        val parser = not(char('a'))
+
+        Assert.assertEquals(parser(Reader.new("b")).fold({ it.value == 'b' && it.consumed }, { false }), true)
+    }
+
+    @Test
+    fun shouldNotCharParserReturnsReject() {
+        val parser = not(char('a'))
+
+        Assert.assertEquals(parser(Reader.new("a")).fold({ false }, { true }), true)
+    }
 }

@@ -1,11 +1,10 @@
 package lambdada.parsec.parser
 
+import lambdada.parsec.extension.charsToInt
 import lambdada.parsec.extension.fold
-import lambdada.parsec.extension.int
 import lambdada.parsec.extension.next
-import lambdada.parsec.extension.string
+import lambdada.parsec.extension.stringsToString
 import lambdada.parsec.io.Reader
-import java.util.*
 
 //
 // Parser type definition
@@ -87,14 +86,15 @@ val any: Parser<Char> =
 val eos: Parser<Unit> =
         any then fails<Unit>() map { Unit } or returns(Unit)
 
-fun not(p: Parser<Char>): Parser<Char> = (p thenRight fails<Char>(true)) or any
-
 //
 // Backtrack parser
 //
 
 fun <A> doTry(p: Parser<A>): Parser<A> =
         { r -> p(r).fold({ it }, { fails<A>(false)(r) }) }
+
+fun not(p: Parser<Char>): Parser<Char> =
+        { r -> p(r).fold({ fails<Char>(false)(r) }, { any(r) }) }
 
 //
 // Filtering
@@ -109,11 +109,11 @@ infix fun <A> Parser<A>.satisfy(p: (A) -> Boolean): Parser<A> =
 
 // NOTE: Greedy parsers | Prefix i.e. Function vs. Method
 
-fun <A> opt(p: Parser<A>): Parser<Optional<A>> =
-        p.map { Optional.of(it) } or returns(Optional.empty())
+fun <A> opt(p: Parser<A>): Parser<A?> =
+        p map { it as A? } or returns<A?>(null)
 
 fun <A> optRep(p: Parser<A>): Parser<List<A>> =
-        opt(p then lazy { optRep(p) } map { (p, l) -> listOf(p) + l }) map { it.orElse(listOf()) }
+        opt(p then lazy { optRep(p) } map { (p, l) -> listOf(p) + l }) map { it ?: listOf() }
 
 fun <A> rep(p: Parser<A>): Parser<List<A>> =
         p then optRep(p) map { (a, b) -> listOf(a) + b }
@@ -140,12 +140,14 @@ fun string(s: String): Parser<String> =
                 { returns(s) }
         )
 
-val delimitedString: Parser<String> =
-        char('"') thenRight optRep(not(char('"'))) thenLeft char('"') map { it.string() }
+fun delimitedString(): Parser<String> {
+    val anyChar : Parser<String> = char('\\') then char('"') map { "\\\"" } or (not(char('"')) map { it.toString() })
+    return char('"') thenRight optRep(anyChar) thenLeft char('"') map { it.stringsToString() }
+}
 
 //
 // Integer parser
 //
 
 val integer: Parser<Int> =
-        opt(charIn("-+")) map { it.orElse('+') } then rep(charIn('0'..'9')) map { (s, n) -> (listOf(s) + n).int() }
+        opt(charIn("-+")) map { it ?: '+' } then rep(charIn('0'..'9')) map { (s, n) -> (listOf(s) + n).charsToInt() }

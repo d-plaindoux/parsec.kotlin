@@ -16,7 +16,7 @@ fun mjson(): Parser<MJSon> {
     val jsonArray: Parser<MJSon> =
             char('[') then
             opt(json then optRep(char(',') thenRight json) map { (s, l) -> listOf(s) + l }) then
-            char(']') map { MJSonArray(it.first.second.orElse(listOf())) }
+            char(']') map { MJSonArray(it.first.second.orEmpty()) }
 
     return jsonInt or jsonArray
 }
