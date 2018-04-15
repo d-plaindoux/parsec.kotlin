@@ -8,21 +8,21 @@ class T00_BasicParser {
 
     @Test
     fun shouldReturnsParserReturnsAccept() {
-        val parser : (Reader) -> Response<Char> = returns('a')
+        val parser: Parser<Char> = returns('a')
 
         Assert.assertEquals(parser(Reader.new("")).fold({ it.value == 'a' }, { false }), true)
     }
 
     @Test
     fun shouldFailsParserReturnsError() {
-        val parser : Parser<Char> = fails<Char>()
+        val parser = fails<Char>()
 
         Assert.assertEquals(parser(Reader.new("")).fold({ false }, { true }), true)
     }
 
     @Test
     fun shouldMappedReturnsParserReturnsAccept() {
-        val parser : Parser<Boolean> = returns('a') map { it == 'a' }
+        val parser: Parser<Boolean> = returns('a') map { it == 'a' }
 
         Assert.assertEquals(parser(Reader.new("")).fold({ it.value }, { false }), true)
     }

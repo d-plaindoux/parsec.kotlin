@@ -21,14 +21,6 @@ sealed class Response<A> {
             }
 
     /**
-     * Function binding also call flatMap
-     */
-    fun <B> flatMap(f: (A) -> Response<B>): Response<B> = fold(
-            { f(it.value) },
-            { Reject(it.position, it.consumed) }
-    )
-
-    /**
      * Function mapping also called map
      */
     fun <B> map(f: (A) -> B): Response<B> = fold(

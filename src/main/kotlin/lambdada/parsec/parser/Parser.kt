@@ -2,7 +2,6 @@ package lambdada.parsec.parser
 
 import lambdada.parsec.extension.charsToInt
 import lambdada.parsec.extension.fold
-import lambdada.parsec.extension.next
 import lambdada.parsec.extension.stringsToString
 import lambdada.parsec.io.Reader
 
@@ -13,11 +12,18 @@ import lambdada.parsec.io.Reader
 typealias Parser<A> = (Reader) -> Response<A>
 
 //
-// Parser providing pseudo-Monadic ADT
+// Basic parsers
 //
 
-infix fun <A, B> Parser<A>.map(f: (A) -> B): Parser<B> =
-        { reader -> this.invoke(reader).map(f) } // Similar to Object#apply in Scala
+fun <A> returns(v: A, consumed: Boolean = false): Parser<A> =
+        { Accept(v, it, consumed) }
+
+fun <A> fails(consumed: Boolean = false): Parser<A> =
+        { Reject(it.offset, consumed) }
+
+//
+// Parser providing pseudo-Monadic ADT
+//
 
 infix fun <A, B> Parser<A>.flatMap(f: (A) -> Parser<B>): Parser<B> =
         { reader ->
@@ -32,18 +38,25 @@ infix fun <A, B> Parser<A>.flatMap(f: (A) -> Parser<B>): Parser<B> =
             )
         }
 
+infix fun <A, B> Parser<A>.map(f: (A) -> B): Parser<B> =
+        this flatMap { returns(f(it)) }
+
 //
-// Basic parsers
+// Applicative context sensitive
 //
 
-fun <A> returns(v: A, consumed: Boolean = false): Parser<A> =
-        { Accept(v, it, consumed) }
+infix fun <A, B> Parser<A>.wrong_applicative(f: Parser<(A) -> B>): Parser<B> =
+        f flatMap { this map it }
 
-fun <A> fails(consumed: Boolean = false): Parser<A> =
-        { Reject(it.offset, consumed) }
+infix fun <A, B> Parser<A>.applicative(f: Parser<(A) -> B>): Parser<B> =
+        this flatMap { f map { f -> f(it) } }
 
-fun <B> lazy(f: () -> Parser<B>): Parser<B> =
-        { f()(it) }
+//
+// Kliesli monads pipelining
+//
+
+infix fun <A, B, C> ((A) -> Parser<B>).pipe(f: (B) -> Parser<C>): (A) -> Parser<C> =
+        { this(it) flatMap f }
 
 //
 // Flow
@@ -54,13 +67,13 @@ infix fun <A, B> Parser<A>.then(f: Parser<B>): Parser<Pair<A, B>> =
         this flatMap { a -> f map { b -> a to b } }
 
 infix fun <A> Parser<A>.or(f: Parser<A>): Parser<A> =
-        { s ->
-            this(s).fold<Response<A>>(
+        { reader ->
+            this(reader).fold<Response<A>>(
                     { it },
                     { r ->
                         when (r.consumed) {
-                            true -> r
-                            false -> f(s)
+                            true -> r // Not commutative
+                            false -> f(reader)
                         }
                     }
             )
@@ -87,11 +100,15 @@ val eos: Parser<Unit> =
         any then fails<Unit>() map { Unit } or returns(Unit)
 
 //
-// Backtrack parser
+// Backtracking
 //
 
 fun <A> doTry(p: Parser<A>): Parser<A> =
         { r -> p(r).fold({ it }, { fails<A>(false)(r) }) }
+
+//
+// Negation
+//
 
 fun not(p: Parser<Char>): Parser<Char> =
         { r -> p(r).fold({ fails<Char>(false)(r) }, { any(r) }) }
@@ -102,6 +119,13 @@ fun not(p: Parser<Char>): Parser<Char> =
 
 infix fun <A> Parser<A>.satisfy(p: (A) -> Boolean): Parser<A> =
         this flatMap { if (p(it)) returns(it) else fails() }
+
+//
+// Lazy parser
+//
+
+fun <B> lazy(f: () -> Parser<B>): Parser<B> =
+        { f()(it) }
 
 //
 // Kleene operator, optional
@@ -133,15 +157,10 @@ fun charIn(s: String): Parser<Char> = doTry(any satisfy { s.contains(it) })
 //
 
 fun string(s: String): Parser<String> =
-        s.next().fold(
-                { (c, sp) ->
-                    sp.fold(char(c), { p, c -> p thenRight char(c) }) thenRight returns(s, true)
-                },
-                { returns(s) }
-        )
+        s.fold(returns(StringBuilder()), { a, c -> a then char(c) map { (s, c) -> s.append(c) } }) map { it.toString() }
 
 fun delimitedString(): Parser<String> {
-    val anyChar : Parser<String> = char('\\') then char('"') map { "\\\"" } or (not(char('"')) map { it.toString() })
+    val anyChar: Parser<String> = char('\\') then char('"') map { "\\\"" } or (not(char('"')) map { it.toString() })
     return char('"') thenRight optRep(anyChar) thenLeft char('"') map { it.stringsToString() }
 }
 

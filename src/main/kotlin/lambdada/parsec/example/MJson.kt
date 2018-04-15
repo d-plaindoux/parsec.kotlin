@@ -24,17 +24,17 @@ fun mjson(): Parser<MJSon> {
            delimitedString() map { MJSonString(it) }
 
     val jsonArray: Parser<MJSon> =
-            char('[') then
-            opt(json then optRep(char(',') thenRight json) map { (s, l) -> listOf(s) + l }) then
-            char(']') map { MJSonArray(it.first.second.orEmpty()) }
+            char('[') thenRight
+            opt(json then optRep(char(',') thenRight json) map { (s, l) -> listOf(s) + l }) thenLeft
+            char(']') map { MJSonArray(it.orEmpty()) }
 
     val jsonAttribute : Parser<Pair<String,MJSon>> =
-            delimitedString() thenLeft char(':') then json map { it }
+            delimitedString() thenLeft char(':') then json
 
     val jsonObject: Parser<MJSon> =
-            char('{') then
-            opt(jsonAttribute then optRep(char(',') thenRight jsonAttribute) map { (s, l) -> listOf(s) + l }) then
-            char('}') map { MJSonObject(it.first.second.orEmpty().toMap()) }
+            char('{') thenRight
+            opt(jsonAttribute then optRep(char(',') thenRight jsonAttribute) map { (s, l) -> listOf(s) + l }) thenLeft
+            char('}') map { MJSonObject(it.orEmpty().toMap()) }
 
     return jsonInt or jsonString or jsonArray or jsonObject
 

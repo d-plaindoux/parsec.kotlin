@@ -1,6 +1,6 @@
 package lambdada.parsec.io
 
-import lambdada.parsec.extension.next
+import lambdada.parsec.extension.fold
 
 class Reader(private val source: String, val offset: Int) {
 
@@ -8,7 +8,5 @@ class Reader(private val source: String, val offset: Int) {
         fun new(s: String): Reader = Reader(s, 0)
     }
 
-    fun next(): Pair<Char, Reader>? =
-            source.next()?.let { (c, s) -> c to Reader(s, offset + 1) }
-
+    fun next(): Pair<Char, Reader>? = source.getOrNull(offset).fold({ it to Reader(source, offset + 1) }, { null })
 }

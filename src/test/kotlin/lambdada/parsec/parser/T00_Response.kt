@@ -16,23 +16,4 @@ class T00_Response {
         Assert.assertEquals(Accept(1, Reader.new(""), false).map { it + 2 }.fold({ it.value == 3 && !it.consumed }, { false }), true)
     }
 
-    @Test
-    fun shouldConsumedAcceptResponseFlatMap() {
-        Assert.assertEquals(Accept(1, Reader.new(""), true).flatMap { Accept(it + 2, Reader.new(""), true) }.fold({ it.value == 3 && it.consumed }, { false }), true)
-    }
-
-    @Test
-    fun shouldNotConsumedAndConsumedAcceptResponseFlatMap() {
-        Assert.assertEquals(Accept(1, Reader.new(""), false).flatMap { Accept(it + 2, Reader.new(""), true) }.fold({ it.value == 3 && it.consumed }, { false }), true)
-    }
-
-    @Test
-    fun shouldConsumedAndNotConsumedAcceptResponseFlatMap() {
-        Assert.assertEquals(Accept(1, Reader.new(""), true).flatMap { Accept(it + 2, Reader.new(""), false) }.fold({ it.value == 3 && !it.consumed }, { false }), true)
-    }
-
-    @Test
-    fun shouldNotConsumedAndNotConsumedAcceptResponseFlatMap() {
-        Assert.assertEquals(Accept(1, Reader.new(""), false).flatMap { Accept(it + 2, Reader.new(""), true) }.fold({ it.value == 3 && it.consumed }, { false }), true)
-    }
 }
