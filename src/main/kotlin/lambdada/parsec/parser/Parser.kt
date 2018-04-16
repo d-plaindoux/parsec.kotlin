@@ -1,5 +1,6 @@
 package lambdada.parsec.parser
 
+import lambdada.parsec.extension.charsToFloat
 import lambdada.parsec.extension.charsToInt
 import lambdada.parsec.extension.fold
 import lambdada.parsec.extension.stringsToString
@@ -55,7 +56,7 @@ infix fun <A, B> Parser<A>.applicative(f: Parser<(A) -> B>): Parser<B> =
 // Kliesli monads pipelining
 //
 
-infix fun <A, B, C> ((A) -> Parser<B>).pipe(f: (B) -> Parser<C>): (A) -> Parser<C> =
+infix fun <A, B, C> ((A) -> Parser<B>).kliesli(f: (B) -> Parser<C>): (A) -> Parser<C> =
         { this(it) flatMap f }
 
 //
@@ -160,7 +161,7 @@ fun string(s: String): Parser<String> =
         s.fold(returns(StringBuilder()), { a, c -> a then char(c) map { (s, c) -> s.append(c) } }) map { it.toString() }
 
 fun delimitedString(): Parser<String> {
-    val anyChar: Parser<String> = char('\\') then char('"') map { "\\\"" } or (not(char('"')) map { it.toString() })
+    val anyChar: Parser<String> = doTry(string("\\\"")) or (not(char('"')) map { it.toString() })
     return char('"') thenRight optRep(anyChar) thenLeft char('"') map { it.stringsToString() }
 }
 
@@ -168,5 +169,16 @@ fun delimitedString(): Parser<String> {
 // Integer parser
 //
 
+private val stringNumber: Parser<List<Char>> =
+        rep(charIn('0'..'9'))
+
+private val stringInteger: Parser<List<Char>> =
+        opt(charIn("-+")) map { it ?: '+' } then stringNumber map { (s, n) -> (listOf(s) + n) }
+
 val integer: Parser<Int> =
-        opt(charIn("-+")) map { it ?: '+' } then rep(charIn('0'..'9')) map { (s, n) -> (listOf(s) + n).charsToInt() }
+        stringInteger map { it.charsToInt() }
+
+val float: Parser<Float> =
+        stringInteger then (opt(char('.') then stringNumber map { (s, n) -> (listOf(s) + n) }) map {
+            it ?: listOf()
+        }) map { (s, n) -> (s + n).charsToFloat() }

@@ -19,4 +19,12 @@ class T06_StringParser {
 
         assertEquals(parser(Reader.new(""""hel\"lo"""")).fold({ it.value }, { null }), """hel\"lo""")
     }
+
+
+    @Test
+    fun shouldStringWithMetaCharacterParserReturnAccept() {
+        val parser = string("hel\\nlo") thenLeft eos
+
+        assertEquals(parser(Reader.new("hel\\nlo")).fold({ it.value == "hel\\nlo" }, { false }), true)
+    }
 }

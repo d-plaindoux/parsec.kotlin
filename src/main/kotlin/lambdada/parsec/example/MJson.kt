@@ -3,39 +3,43 @@ package lambdada.parsec.example
 import lambdada.parsec.parser.*
 
 
-// mjson ::= integer | ('[' (mjson (, mjson)*)? ']'
+// JSon ::= integer | ('[' (JSon (, JSon)*)? ']'
 
-interface MJSon
+interface JSon
 
-data class MJSonInt(val v: Int) : MJSon
-data class MJSonString(val v: String) : MJSon
-data class MJSonArray(val v: List<MJSon>) : MJSon
-data class MJSonObject(val v: Map<String,MJSon>) : MJSon
+data class JSonBoolean(val v: Boolean) : JSon
+data class JSonNumber(val v: Float) : JSon
+data class JSonString(val v: String) : JSon
+data class JSonArray(val v: List<JSon>) : JSon
+data class JSonObject(val v: Map<String, JSon>) : JSon
+object JSonNull : JSon
 
-fun mjson(): Parser<MJSon> {
+fun json(): Parser<JSon> {
+    fun <A> spaces(p: Parser<A>): Parser<A> = optRep(charIn("\n\r\t ")) thenRight p thenLeft optRep(charIn("\n\r\t "))
 
-    val json: Parser<MJSon> =
-            lazy { mjson() }
+    val json: Parser<JSon> =
+            lazy { json() }
 
-    val jsonInt: Parser<MJSon> =
-            integer map { MJSonInt(it) }
+    val jsonNull: Parser<JSon> =
+            string("null") map { JSonNull }
 
-    val jsonString: Parser<MJSon> =
-           delimitedString() map { MJSonString(it) }
+    val jsonBoolean: Parser<JSon> =
+            (string("true") map { JSonBoolean(true) as JSon }) or (string("false") map { JSonBoolean(false) as JSon })
 
-    val jsonArray: Parser<MJSon> =
-            char('[') thenRight
-            opt(json then optRep(char(',') thenRight json) map { (s, l) -> listOf(s) + l }) thenLeft
-            char(']') map { MJSonArray(it.orEmpty()) }
+    val jsonInt: Parser<JSon> =
+            float map { JSonNumber(it) }
 
-    val jsonAttribute : Parser<Pair<String,MJSon>> =
-            delimitedString() thenLeft char(':') then json
+    val jsonString: Parser<JSon> =
+            delimitedString() map { JSonString(it) as JSon }
 
-    val jsonObject: Parser<MJSon> =
-            char('{') thenRight
-            opt(jsonAttribute then optRep(char(',') thenRight jsonAttribute) map { (s, l) -> listOf(s) + l }) thenLeft
-            char('}') map { MJSonObject(it.orEmpty().toMap()) }
+    fun <A> structure(p: Parser<A>, o: Char, s: Char, c: Char): Parser<List<A>?> =
+            char(o) thenRight opt(p then optRep(spaces(char(s)) thenRight p) map { (s, l) -> listOf(s) + l }) thenLeft spaces(char(c))
 
-    return jsonInt or jsonString or jsonArray or jsonObject
+    val jsonArray: Parser<JSon> =
+            structure(json, '[', ',', ']') map { JSonArray(it.orEmpty()) }
 
+    val jsonObject: Parser<JSon> =
+            structure(spaces(delimitedString()) thenLeft spaces(char(':')) then json, '{', ',', '}') map { JSonObject(it.orEmpty().toMap()) }
+
+    return spaces(jsonNull or jsonBoolean or jsonInt or jsonString or jsonArray or jsonObject)
 }
