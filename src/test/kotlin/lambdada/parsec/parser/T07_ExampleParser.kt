@@ -53,8 +53,6 @@ class T05_ExampleParser {
     fun shouldJSonParserReturnEmptyObject() {
         val parser = JSonParser
 
-        print(parser(Readers.new("{}a")))
-
         assertEquals(parser(Readers.new("{}")).fold({ it.value == JSonObject(mapOf()) }, { false }), true)
     }
 
