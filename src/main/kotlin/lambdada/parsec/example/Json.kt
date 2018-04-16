@@ -4,17 +4,14 @@ import lambdada.parsec.io.Reader
 import lambdada.parsec.io.Readers
 import lambdada.parsec.parser.*
 
-
-// JSon ::= integer | ('[' (JSon (, JSon)*)? ']'
-
 interface JSon
 
+object JSonNull : JSon
 data class JSonBoolean(val v: Boolean) : JSon
 data class JSonNumber(val v: Float) : JSon
 data class JSonString(val v: String) : JSon
 data class JSonArray(val v: List<JSon>) : JSon
 data class JSonObject(val v: Map<String, JSon>) : JSon
-object JSonNull : JSon
 
 object JSonParser : Parser<JSon> {
 

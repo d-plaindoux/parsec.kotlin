@@ -89,10 +89,16 @@ class T05_ExampleParser {
     fun shouldParseJSon100k() {
         val parser = JSonParser
         val content = T05_ExampleParser::class.java.getResource("/100k.json").readText()
-        val response = parser(Readers.new(content))
 
-        print(response)
+        assertEquals(parser(Readers.new(content)).fold({ true }, { false }), true)
+    }
 
-        assertEquals(response.fold({ true }, { false }), true)
+
+    @Test
+    fun shouldParseJSon300k() {
+        val parser = JSonParser
+        val content = T05_ExampleParser::class.java.getResource("/300k.json").readText()
+
+        assertEquals(parser(Readers.new(content)).fold({ true }, { false }), true)
     }
 }

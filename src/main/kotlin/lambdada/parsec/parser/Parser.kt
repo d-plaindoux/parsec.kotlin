@@ -134,14 +134,34 @@ fun <B> lazy(f: () -> Parser<B>): Parser<B> =
 
 // NOTE: Greedy parsers | Prefix i.e. Function vs. Method
 
+fun <A> occurrence(p: Parser<A>, min: Int): Parser<List<A>> = { r ->
+    var v = Accept(listOf<A>(), r, false)
+    var c = p(r)
+
+    while (c.fold({ true }, { false })) {
+        c.fold({
+            v = Accept(v.value + listOf(it.value), it.input, it.consumed)
+            c = c.fold({ p(it.input) }, { it })
+        }, {
+            Unit
+        })
+    }
+
+    if (v.fold({ min <= it.value.size }, { false })) {
+        v
+    } else {
+        c.fold({ Reject<List<A>>(it.input.offset, it.consumed) }, { Reject(it.position, it.consumed) })
+    }
+}
+
 fun <A> opt(p: Parser<A>): Parser<A?> =
         p map { it as A? } or returns<A?>(null)
 
-fun <A> optRep(p: Parser<A>): Parser<List<A>> =
-        opt(p then lazy { optRep(p) } map { (p, l) -> listOf(p) + l }) map { it ?: listOf() }
+fun <A> optRep(p: Parser<A>): Parser<List<A>> = occurrence(p, 0)
+// opt(p then lazy { optRep(p) } map { (p, l) -> listOf(p) + l }) map { it ?: listOf() }
 
-fun <A> rep(p: Parser<A>): Parser<List<A>> =
-        p then optRep(p) map { (a, b) -> listOf(a) + b }
+fun <A> rep(p: Parser<A>): Parser<List<A>> = occurrence(p, 1)
+// p then optRep(p) map { (a, b) -> listOf(a) + b }
 
 //
 // Specific Char parsers
