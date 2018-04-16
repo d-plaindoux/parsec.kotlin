@@ -8,27 +8,27 @@ class T00_Reader {
 
     @Test
     fun shouldReturnSomething() {
-        Assert.assertEquals(Reader.new("a").next().fold({ true }, { false }), true)
+        Assert.assertEquals(Readers.new("a").next().fold({ true }, { false }), true)
     }
 
     @Test
     fun shouldReturnNothing() {
-        Assert.assertEquals(Reader.new("").next().fold({ true }, { false }), false)
+        Assert.assertEquals(Readers.new("").next().fold({ true }, { false }), false)
     }
 
     @Test
     fun shouldReturnAChar() {
-        Assert.assertEquals(Reader.new("a").next()?.first, 'a')
+        Assert.assertEquals(Readers.new("a").next()?.first, 'a')
     }
 
     @Test
     fun shouldReturnAReaderReturnSomething() {
-        Assert.assertEquals(Reader.new("ab").next()?.second?.next()?.first, 'b')
+        Assert.assertEquals(Readers.new("ab").next()?.second?.next()?.first, 'b')
     }
 
     @Test
     fun shouldReturnAReaderReturnNothing() {
-        Assert.assertEquals(Reader.new("a").next()?.second?.next().fold({ true }, { false }), false)
+        Assert.assertEquals(Readers.new("a").next()?.second?.next().fold({ true }, { false }), false)
     }
 
 }

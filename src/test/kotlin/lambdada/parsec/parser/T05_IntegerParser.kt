@@ -1,6 +1,6 @@
 package lambdada.parsec.parser
 
-import lambdada.parsec.io.Reader
+import lambdada.parsec.io.Readers
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -10,14 +10,14 @@ class T05_IntegerParser {
     fun shouldPositiveIntegerParserReturnAccept() {
         val parser = integer then eos map { it.first }
 
-        assertEquals(parser(Reader.new("+42")).fold({ it.value == 42 }, { false }), true)
+        assertEquals(parser(Readers.new("+42")).fold({ it.value == 42 }, { false }), true)
     }
 
     @Test
     fun shouldNegativeIntegerParserReturnAccept() {
         val parser = integer then eos map { it.first }
 
-        assertEquals(parser(Reader.new("-42")).fold({ it.value == -42 }, { false }), true)
+        assertEquals(parser(Readers.new("-42")).fold({ it.value == -42 }, { false }), true)
     }
     
 }
