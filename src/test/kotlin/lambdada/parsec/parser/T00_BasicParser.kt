@@ -8,51 +8,51 @@ class T00_BasicParser {
 
     @Test
     fun shouldReturnsParserReturnsAccept() {
-        val parser: Parser<Char> = returns('a')
+        val parser: Parser<Char, Char> = returns('a')
 
-        Assert.assertEquals(parser(Readers.new("")).fold({ it.value == 'a' }, { false }), true)
+        Assert.assertEquals(parser(Readers.fromString("")).fold({ it.value == 'a' }, { false }), true)
     }
 
     @Test
     fun shouldFailsParserReturnsError() {
-        val parser = fails<Char>()
+        val parser = fails<Char, Char>()
 
-        Assert.assertEquals(parser(Readers.new("")).fold({ false }, { true }), true)
+        Assert.assertEquals(parser(Readers.fromString("")).fold({ false }, { true }), true)
     }
 
     @Test
     fun shouldMappedReturnsParserReturnsAccept() {
-        val parser: Parser<Boolean> = returns('a') map { it == 'a' }
+        val parser: Parser<Char, Boolean> = returns<Char, Char>('a') map { it == 'a' }
 
-        Assert.assertEquals(parser(Readers.new("")).fold({ it.value }, { false }), true)
+        Assert.assertEquals(parser(Readers.fromString("")).fold({ it.value }, { false }), true)
     }
 
     @Test
     fun shouldFlapMappedReturnsParserReturnsAccept() {
-        val parser = returns('a') flatMap { returns(it + "b") } map { it == "ab" }
+        val parser = returns<Char, Char>('a') flatMap { returns<Char, String>(it + "b") } map { it == "ab" }
 
-        Assert.assertEquals(parser(Readers.new("")).fold({ it.value }, { false }), true)
+        Assert.assertEquals(parser(Readers.fromString("")).fold({ it.value }, { false }), true)
     }
 
     @Test
     fun shouldFlapMappedReturnsParserReturnsError() {
-        val parser = returns('a') flatMap { fails<Char>() }
+        val parser = returns<Char, Char>('a') flatMap { fails<Char, Char>() }
 
-        Assert.assertEquals(parser(Readers.new("")).fold({ false }, { true }), true)
+        Assert.assertEquals(parser(Readers.fromString("")).fold({ false }, { true }), true)
     }
 
     @Test
     fun shouldLazyReturnsParserReturnsAccept() {
-        val parser = lazy { returns('a') }
+        val parser = lazy { returns<Char, Char>('a') }
 
-        Assert.assertEquals(parser(Readers.new("")).fold({ it.value == 'a' }, { false }), true)
+        Assert.assertEquals(parser(Readers.fromString("")).fold({ it.value == 'a' }, { false }), true)
     }
 
     @Test
     fun shouldLazyFailsParserReturnsError() {
-        val parser = lazy { fails<Char>() }
+        val parser = lazy { fails<Char, Char>() }
 
-        Assert.assertEquals(parser(Readers.new("")).fold({ false }, { true }), true)
+        Assert.assertEquals(parser(Readers.fromString("")).fold({ false }, { true }), true)
     }
 
 }
