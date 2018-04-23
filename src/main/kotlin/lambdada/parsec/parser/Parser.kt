@@ -10,23 +10,24 @@ import lambdada.parsec.io.Reader
 // Parser type definition
 //
 
-typealias Parser<T, A> = (Reader<T>) -> Response<T, A>
+typealias GeneralizedParser<T, A> = (Reader<T>) -> Response<T, A>
+typealias Parser<A> = GeneralizedParser<Char, A>
 
 //
 // Basic parsers
 //
 
-fun <T, A> returns(v: A, consumed: Boolean = false): Parser<T, A> =
+fun <A> returns(v: A, consumed: Boolean = false): Parser<A> =
         { Accept(v, it, consumed) }
 
-fun <T, A> fails(consumed: Boolean = false): Parser<T, A> =
+fun <A> fails(consumed: Boolean = false): Parser<A> =
         { Reject(it.offset, consumed) }
 
 //
 // Parser providing pseudo-Monadic ADT
 //
 
-infix fun <T, A, B> Parser<T, A>.flatMap(f: (A) -> Parser<T, B>): Parser<T, B> =
+infix fun <A, B> Parser<A>.flatMap(f: (A) -> Parser<B>): Parser<B> =
         { reader ->
             this(reader).fold(
                     { a ->
@@ -39,20 +40,20 @@ infix fun <T, A, B> Parser<T, A>.flatMap(f: (A) -> Parser<T, B>): Parser<T, B> =
             )
         }
 
-infix fun <T, A, B> Parser<T, A>.map(f: (A) -> B): Parser<T, B> =
-        this flatMap { returns<T, B>(f(it)) }
+infix fun <A, B> Parser<A>.map(f: (A) -> B): Parser<B> =
+        this flatMap { returns(f(it)) }
 
 //
 // Flow
 //
 
 // NOTE: [do] comprehension should be better
-infix fun <T, A, B> Parser<T, A>.then(f: Parser<T, B>): Parser<T, Pair<A, B>> =
+infix fun <A, B> Parser<A>.then(f: Parser<B>): Parser<Pair<A, B>> =
         this flatMap { a -> f map { b -> a to b } }
 
-infix fun <T, A> Parser<T, A>.or(f: Parser<T, A>): Parser<T, A> =
+infix fun <A> Parser<A>.or(f: Parser<A>): Parser<A> =
         { reader ->
-            this(reader).fold<Response<T, A>>(
+            this(reader).fold<Response<Char, A>>(
                     { it },
                     { r ->
                         when (r.consumed) {
@@ -67,34 +68,34 @@ infix fun <T, A> Parser<T, A>.or(f: Parser<T, A>): Parser<T, A> =
 // Alternate Then
 //
 
-infix fun <T, A, B> Parser<T, A>.thenLeft(f: Parser<T, B>): Parser<T, A> =
+infix fun <A, B> Parser<A>.thenLeft(f: Parser<B>): Parser<A> =
         this then f map { it.first }
 
-infix fun <T, A, B> Parser<T, A>.thenRight(f: Parser<T, B>): Parser<T, B> =
+infix fun <A, B> Parser<A>.thenRight(f: Parser<B>): Parser<B> =
         this then f map { it.second }
 
 //
 // Element parser
 //
 
-fun <T> any(): Parser<T, T> =
-        { r -> r.next().fold({ returns<T, T>(it.first, true)(it.second) }, { fails<T, T>(false)(r) }) }
+var any: Parser<Char> =
+        { r -> r.next().fold({ returns(it.first, true)(it.second) }, { fails<Char>(false)(r) }) }
 
-fun <T> eos(): Parser<T, Unit> =
-        any<T>() then fails<T, Unit>() map { Unit } or returns(Unit)
+var eos: Parser<Unit> =
+        any then fails<Unit>() map { Unit } or returns(Unit)
 
 //
 // Filtering
 //
 
-infix fun <T, A> Parser<T, A>.satisfy(p: (A) -> Boolean): Parser<T, A> =
-        this flatMap { if (p(it)) returns<T, A>(it) else fails() }
+infix fun <A> Parser<A>.satisfy(p: (A) -> Boolean): Parser<A> =
+        this flatMap { if (p(it)) returns(it) else fails() }
 
 //
 // Lazy parser
 //
 
-fun <T, A> lazy(f: () -> Parser<T, A>): Parser<T, A> =
+fun <A> lazy(f: () -> Parser<A>): Parser<A> =
         { f()(it) }
 
 //
@@ -103,10 +104,10 @@ fun <T, A> lazy(f: () -> Parser<T, A>): Parser<T, A> =
 
 // NOTE: Greedy parsers | Prefix i.e. Function vs. Method
 
-fun <T, A> opt(p: Parser<T, A>): Parser<T, A?> =
-        p map { it as A? } or returns<T, A?>(null)
+fun <A> opt(p: Parser<A>): Parser<A?> =
+        p map { it as A? } or returns<A?>(null)
 
-private fun <T, A> occurrence(p: Parser<T, A>, min: Int = 0, max: Int = Int.MAX_VALUE): Parser<T, List<A>> = {
+private fun <A> occurrence(p: Parser<A>, min: Int = 0, max: Int = Int.MAX_VALUE): Parser<List<A>> = {
     val value = arrayListOf<A>() // o_O
     var input = it
     var consumed = false
@@ -128,52 +129,52 @@ private fun <T, A> occurrence(p: Parser<T, A>, min: Int = 0, max: Int = Int.MAX_
     }
 }
 
-fun <T, A> optRep(p: Parser<T, A>): Parser<T, List<A>> =
+fun <A> optRep(p: Parser<A>): Parser<List<A>> =
         occurrence(p, min = 0) // opt(p then lazy { optRep(p) } map { (p, l) -> listOf(p) + l }) map { it ?: listOf() }
 
-fun <T, A> rep(p: Parser<T, A>): Parser<T, List<A>> =
+fun <A> rep(p: Parser<A>): Parser<List<A>> =
         occurrence(p, min = 1) // p then optRep(p) map { (a, b) -> listOf(a) + b }
 
 //
 // Backtracking
 //
 
-fun <T, A> doTry(p: Parser<T, A>): Parser<T, A> =
-        { r -> p(r).fold({ it }, { fails<T, A>(false)(r) }) }
+fun <A> doTry(p: Parser<A>): Parser<A> =
+        { r -> p(r).fold({ it }, { fails<A>(false)(r) }) }
 
 //
 // Lookahead
 //
 
-fun <T, A> lookahead(p: Parser<T, A>): Parser<T, A> =
-        { r -> p(r).fold({ returns<T, A>(it.value)(r) }, { fails<T, A>(false)(r) }) }
+fun <A> lookahead(p: Parser<A>): Parser<A> =
+        { r -> p(r).fold({ returns(it.value)(r) }, { fails<A>(false)(r) }) }
 
 //
 // Negation
 //
 
-fun <A> not(p: Parser<A, A>): Parser<A, A> =
-        { r -> p(r).fold({ fails<A, A>(false)(r) }, { any<A>()(r) }) }
+fun not(p: Parser<Char>): Parser<Char> =
+        { r -> p(r).fold({ fails<Char>(false)(r) }, { any(r) }) }
 
 //
 // Specific Char parsers
 //
 
-fun char(c: Char): Parser<Char, Char> = doTry(any<Char>() satisfy { c == it })
+fun char(c: Char): Parser<Char> = doTry(any satisfy { c == it })
 
-fun charIn(s: CharRange): Parser<Char, Char> = doTry(any<Char>() satisfy { s.contains(it) })
+fun charIn(s: CharRange): Parser<Char> = doTry(any satisfy { s.contains(it) })
 
-fun charIn(s: String): Parser<Char, Char> = doTry(any<Char>() satisfy { s.contains(it) })
+fun charIn(s: String): Parser<Char> = doTry(any satisfy { s.contains(it) })
 
 //
 // Characters parser
 //
 
-fun string(s: String): Parser<Char, String> =
-        s.fold(returns<Char, StringBuilder>(StringBuilder()), { a, c -> a then char(c) map { (s, c) -> s.append(c) } }) map { it.toString() }
+fun string(s: String): Parser<String> =
+        s.fold(returns<StringBuilder>(StringBuilder()), { a, c -> a then char(c) map { (s, c) -> s.append(c) } }) map { it.toString() }
 
-fun delimitedString(): Parser<Char, String> {
-    val anyChar: Parser<Char, String> = doTry(string("\\\"")) or (not(char('"')) map { it.toString() })
+fun delimitedString(): Parser<String> {
+    val anyChar: Parser<String> = doTry(string("\\\"")) or (not(char('"')) map { it.toString() })
     return char('"') thenRight optRep(anyChar) thenLeft char('"') map { it.stringsToString() }
 }
 
@@ -181,16 +182,16 @@ fun delimitedString(): Parser<Char, String> {
 // Number parser
 //
 
-private val stringNumber: Parser<Char, List<Char>> =
+private val stringNumber: Parser<List<Char>> =
         rep(charIn('0'..'9'))
 
-private val stringInteger: Parser<Char, List<Char>> =
+private val stringInteger: Parser<List<Char>> =
         opt(charIn("-+")) map { it ?: '+' } then stringNumber map { (s, n) -> (listOf(s) + n) }
 
-val integer: Parser<Char, Int> =
+val integer: Parser<Int> =
         stringInteger map { it.charsToInt() }
 
-val float: Parser<Char, Float> =
+val float: Parser<Float> =
         stringInteger then (opt(char('.') then stringNumber map { (s, n) -> (listOf(s) + n) }) map {
             it ?: listOf()
         }) map { (s, n) -> (s + n).charsToFloat() }
@@ -199,15 +200,15 @@ val float: Parser<Char, Float> =
 // Applicative context sensitive
 //
 
-infix fun <T, A, B> Parser<T, A>.wrong_applicative(f: Parser<T, (A) -> B>): Parser<T, B> =
+infix fun <A, B> Parser<A>.wrong_applicative(f: Parser<(A) -> B>): Parser<B> =
         f flatMap { this map it }
 
-infix fun <T, A, B> Parser<T, A>.applicative(f: Parser<T, (A) -> B>): Parser<T, B> =
+infix fun <A, B> Parser<A>.applicative(f: Parser<(A) -> B>): Parser<B> =
         this flatMap { f map { f -> f(it) } }
 
 //
 // Kliesli monads pipelining
 //
 
-infix fun <T, A, B, C> ((A) -> Parser<T, B>).kliesli(f: (B) -> Parser<T, C>): (A) -> Parser<T, C> =
+infix fun <A, B, C> ((A) -> Parser<B>).kliesli(f: (B) -> Parser<C>): (A) -> Parser<C> =
         { this(it) flatMap f }
