@@ -7,10 +7,11 @@ import lambdada.parsec.parser.*
 
 object JSonParser_1 : Parser<Char, JSon> {
 
-    override fun invoke(r: Reader<Char>): Response<Char, JSon> = (json thenLeft eos())(removeSpace(r))
+    override fun invoke(r: Reader<Char>): Response<Char, JSon> = (json thenLeft eos())(removeSpaces(r))
 
-    private fun removeSpace(r: Reader<Char>): Reader<Char> = r skip rep(charIn("\r\n\t "))
-    val jsonNull: Parser<Char, JSon> =
+    private fun removeSpaces(r: Reader<Char>): Reader<Char> = r skip rep(charIn("\r\n\t "))
+
+    private val jsonNull: Parser<Char, JSon> =
             string("null") map { JSonNull }
 
     private val jsonBoolean: Parser<Char, JSon> =
@@ -34,6 +35,7 @@ object JSonParser_1 : Parser<Char, JSon> {
     private val jsonObject: Parser<Char, JSon> =
             structure(jsonAttribute, '{', ',', '}') map { JSonObject(it.orEmpty().toMap()) }
 
-    private val json: Parser<Char, JSon> = jsonNull or jsonBoolean or jsonInt or jsonString or jsonArray or jsonObject
+    private val json: Parser<Char, JSon> =
+            jsonNull or jsonBoolean or jsonInt or jsonString or jsonArray or jsonObject
 
 }

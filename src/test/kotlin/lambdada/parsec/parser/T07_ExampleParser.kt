@@ -109,22 +109,6 @@ class T05_ExampleParser {
         val content = T05_ExampleParser::class.java.getResource("/1m.json").readText()
 
         assertEquals(parser(Readers.fromString(content)).fold({ true }, { false }), true)
-
-        var averageDuration = 0L
-
-        for(i in 1..50) {
-            val t0 = System.currentTimeMillis()
-
-            assertEquals(parser(Readers.fromString(content)).fold({ true }, { false }), true)
-
-            val duration = System.currentTimeMillis() - t0
-
-            averageDuration += duration
-
-            print("<$i> $duration Average time: ${averageDuration / i} ms \n")
-        }
-
-
     }
 
 }

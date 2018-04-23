@@ -129,12 +129,10 @@ private fun <T, A> occurrence(p: Parser<T, A>, min: Int = 0, max: Int = Int.MAX_
 }
 
 fun <T, A> optRep(p: Parser<T, A>): Parser<T, List<A>> =
-        occurrence(p, min = 0)
-        // opt(p then lazy { optRep(p) } map { (p, l) -> listOf(p) + l }) map { it ?: listOf() }
+        occurrence(p, min = 0) // opt(p then lazy { optRep(p) } map { (p, l) -> listOf(p) + l }) map { it ?: listOf() }
 
 fun <T, A> rep(p: Parser<T, A>): Parser<T, List<A>> =
-        occurrence(p, min = 1)
-        // p then optRep(p) map { (a, b) -> listOf(a) + b }
+        occurrence(p, min = 1) // p then optRep(p) map { (a, b) -> listOf(a) + b }
 
 //
 // Backtracking

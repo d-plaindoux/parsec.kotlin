@@ -9,7 +9,8 @@ object JSonParser : Parser<Char, JSon> {
     override fun invoke(r: Reader<Char>): Response<Char, JSon> = (json thenLeft eos())(removeSpace(r))
 
     private fun removeSpace(r: Reader<Char>): Reader<Char> = r skip rep(charIn("\r\n\t "))
-    val jsonNull: Parser<Char, JSon> =
+
+    private val jsonNull: Parser<Char, JSon> =
             string("null") map { JSonNull }
 
     private val jsonTrue: Parser<Char, JSon> =
