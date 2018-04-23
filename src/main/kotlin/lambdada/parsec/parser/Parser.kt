@@ -171,7 +171,7 @@ fun charIn(s: String): Parser<Char> = doTry(any satisfy { s.contains(it) })
 //
 
 fun string(s: String): Parser<String> =
-        s.fold(returns<StringBuilder>(StringBuilder()), { a, c -> a then char(c) map { (s, c) -> s.append(c) } }) map { it.toString() }
+        s.fold(returns(Unit), { a, c -> a thenLeft char(c) }) map { s }
 
 fun delimitedString(): Parser<String> {
     val anyChar: Parser<String> = doTry(string("\\\"")) or (not(char('"')) map { it.toString() })
