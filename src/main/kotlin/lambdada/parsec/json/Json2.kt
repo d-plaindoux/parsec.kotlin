@@ -4,40 +4,40 @@ import lambdada.parsec.io.Reader
 import lambdada.parsec.io.skip
 import lambdada.parsec.parser.*
 
-object JSonParser : Parser<JSon> {
+object JSonParser : CharParser<JSon> {
 
     override fun invoke(r: Reader<Char>): Response<Char, JSon> = (json thenLeft eos)(removeSpace(r))
 
     private fun removeSpace(r: Reader<Char>): Reader<Char> = r skip rep(charIn("\r\n\t "))
 
-    private val jsonNull: Parser<JSon> =
+    private val jsonNull: CharParser<JSon> =
             string("null") map { JSonNull }
 
-    private val jsonTrue: Parser<JSon> =
+    private val jsonTrue: CharParser<JSon> =
             string("true") map { JSonBoolean(true) as JSon }
 
-    private val jsonFalse: Parser<JSon> =
+    private val jsonFalse: CharParser<JSon> =
             string("false") map { JSonBoolean(false) as JSon }
 
-    private val jsonInt: Parser<JSon> =
+    private val jsonInt: CharParser<JSon> =
             float map { JSonNumber(it) }
 
-    private val jsonString: Parser<JSon> =
+    private val jsonString: CharParser<JSon> =
             delimitedString() map { JSonString(it) as JSon }
 
-    private fun <A> structure(p: Parser<A>, o: Char, s: Char, c: Char): Parser<List<A>?> =
+    private fun <A> structure(p: CharParser<A>, o: Char, s: Char, c: Char): CharParser<List<A>?> =
             char(o) thenRight opt(p then optRep(char(s) thenRight p) map { (s, l) -> listOf(s) + l }) thenLeft char(c)
 
-    private val jsonArray: Parser<JSon> =
+    private val jsonArray: CharParser<JSon> =
             structure(lazy { json }, '[', ',', ']') map { JSonArray(it.orEmpty()) }
 
-    private val jsonAttribute: Parser<Pair<String, JSon>> =
+    private val jsonAttribute: CharParser<Pair<String, JSon>> =
             delimitedString() thenLeft char(':') then lazy { json }
 
-    private val jsonObject: Parser<JSon> =
+    private val jsonObject: CharParser<JSon> =
             structure(jsonAttribute, '{', ',', '}') map { JSonObject(it.orEmpty().toMap()) }
 
-    private val json: Parser<JSon> =
+    private val json: CharParser<JSon> =
             lookahead(any) flatMap {
                 when (it) {
                     'n' -> jsonNull

@@ -57,7 +57,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldRepeatableNotThenCharParserWithNonEmptyStringReturnsAccept() {
-        val parser: Parser<List<Char>> = optRep(not(char('a')))
+        val parser: CharParser<List<Char>> = optRep(not(char('a')))
 
         assertEquals(parser(Readers.fromString("bca")).fold({ it.value == listOf('b', 'c') }, { false }), true)
     }

@@ -11,9 +11,3 @@ fun List<String>.stringsToString(): String = this.joinToString(separator = "")
 fun List<Char>.charsToInt(): Int = this.charsToString().toInt()
 
 fun List<Char>.charsToFloat(): Float = this.charsToString().toFloat()
-
-//
-// Optional catamorphism
-//
-
-fun <A, B> A?.fold(s: (A) -> B, e: () -> B): B = this?.let { s(it) } ?: e()

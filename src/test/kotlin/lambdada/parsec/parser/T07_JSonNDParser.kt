@@ -5,46 +5,46 @@ import lambdada.parsec.json.*
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class T05_ExampleParser {
+class T07_JSonNDParser {
 
     @Test
     fun shouldJSonParserReturnInteger() {
-        val parser = JSonParser
+        val parser = JSonParserND
 
         assertEquals(parser(Readers.fromString("42")).fold({ it.value == JSonNumber(42F) }, { false }), true)
     }
 
     @Test
     fun shouldJSonParserReturnNull() {
-        val parser = JSonParser
+        val parser = JSonParserND
 
         assertEquals(parser(Readers.fromString("null")).fold({ it.value == JSonNull }, { false }), true)
     }
 
     @Test
-    fun shouldJSonParserReturnTrue() {
-        val parser = JSonParser
+    fun shouldJSonParserNDReturnTrue() {
+        val parser = JSonParserND
 
         assertEquals(parser(Readers.fromString("true")).fold({ it.value == JSonBoolean(true) }, { false }), true)
     }
 
     @Test
-    fun shouldJSonParserReturnFalse() {
-        val parser = JSonParser
+    fun shouldJSonParserNDReturnFalse() {
+        val parser = JSonParserND
 
         assertEquals(parser(Readers.fromString("false")).fold({ it.value == JSonBoolean(false) }, { false }), true)
     }
 
     @Test
-    fun shouldJSonParserReturnString() {
-        val parser = JSonParser
+    fun shouldJSonParserNDReturnString() {
+        val parser = JSonParserND
 
         assertEquals(parser(Readers.fromString("\"42\"")).fold({ it.value == JSonString("42") }, { false }), true)
     }
 
     @Test
-    fun shouldJSonParserReturnEmptyArray() {
-        val parser = JSonParser
+    fun shouldJSonParserNDReturnEmptyArray() {
+        val parser = JSonParserND
 
         print(parser(Readers.fromString("[]")))
 
@@ -52,61 +52,53 @@ class T05_ExampleParser {
     }
 
     @Test
-    fun shouldJSonParserReturnEmptyObject() {
-        val parser = JSonParser
+    fun shouldJSonParserNDReturnEmptyObject() {
+        val parser = JSonParserND
 
         assertEquals(parser(Readers.fromString("{}")).fold({ it.value == JSonObject(mapOf()) }, { false }), true)
     }
 
     @Test
-    fun shouldJSonParserReturnSingletonObject() {
-        val parser = JSonParser
+    fun shouldJSonParserNDReturnSingletonObject() {
+        val parser = JSonParserND
 
         assertEquals(parser(Readers.fromString("{\"a\":42}")).fold({ it.value == JSonObject(mapOf("a" to JSonNumber(42F))) }, { false }), true)
     }
 
     @Test
-    fun shouldJSonParserReturnSingletonArray() {
-        val parser = JSonParser
+    fun shouldJSonParserNDReturnSingletonArray() {
+        val parser = JSonParserND
 
         assertEquals(parser(Readers.fromString("[42]")).fold({ it.value == JSonArray(listOf(JSonNumber(42F))) }, { false }), true)
     }
 
     @Test
-    fun shouldJSonParserReturnArray() {
-        val parser = JSonParser
+    fun shouldJSonParserNDReturnArray() {
+        val parser = JSonParserND
 
         assertEquals(parser(Readers.fromString("[42,43]")).fold({ it.value == JSonArray(listOf(JSonNumber(42F), JSonNumber(43F))) }, { false }), true)
     }
 
     @Test
     fun shouldParseJSon1k() {
-        val parser = JSonParser
-        val content = T05_ExampleParser::class.java.getResource("/1k.json").readText()
+        val parser = JSonParserND
+        val content = T07_JSonNDParser::class.java.getResource("/1k.json").readText()
 
         assertEquals(parser(Readers.fromString(content)).fold({ true }, { false }), true)
     }
 
     @Test
     fun shouldParseJSon100k() {
-        val parser = JSonParser
-        val content = T05_ExampleParser::class.java.getResource("/100k.json").readText()
+        val parser = JSonParserND
+        val content = T07_JSonNDParser::class.java.getResource("/100k.json").readText()
 
         assertEquals(parser(Readers.fromString(content)).fold({ true }, { false }), true)
     }
 
     @Test
     fun shouldParseJSon300k() {
-        val parser = JSonParser
-        val content = T05_ExampleParser::class.java.getResource("/300k.json").readText()
-
-        assertEquals(parser(Readers.fromString(content)).fold({ true }, { false }), true)
-    }
-
-    @Test
-    fun shouldParseJSon1m() {
-        val parser = JSonParser
-        val content = T05_ExampleParser::class.java.getResource("/1m.json").readText()
+        val parser = JSonParserND
+        val content = T07_JSonNDParser::class.java.getResource("/300k.json").readText()
 
         assertEquals(parser(Readers.fromString(content)).fold({ true }, { false }), true)
     }
