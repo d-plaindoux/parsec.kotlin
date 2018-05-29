@@ -10,55 +10,71 @@ class T03_OccurrenceParser {
     fun shouldOptionalParserWithEmptyStringReturnsAccept() {
         val parser = opt(any) then eos
 
-        assertEquals(parser(Readers.fromString("")).fold({ it.value.first == null }, { false }), true)
+        val result = parser.invoke(Readers.string("")).fold({ it.value.first == null }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldOptionalParserWithNonEmptyStringReturnsAccept() {
         val parser = opt(any) then eos
 
-        assertEquals(parser(Readers.fromString("a")).fold({ it.value.first == 'a' }, { false }), true)
+        val result = parser.invoke(Readers.string("a")).fold({ it.value.first == 'a' }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldOptionalRepeatableParserWithEmptyStringReturnsAccept() {
         val parser = optRep(any) then eos
 
-        assertEquals(parser(Readers.fromString("")).fold({ true }, { false }), true)
+        val result = parser.invoke(Readers.string("")).fold({ true }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldOptionalRepeatableParserWithNonEmptyStringReturnsAccept() {
         val parser = optRep(any) then eos
 
-        assertEquals(parser(Readers.fromString("ab")).fold({ it.value.first == listOf('a', 'b') }, { false }), true)
+        val result = parser.invoke(Readers.string("ab")).fold({ it.value.first == listOf('a', 'b') }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldRepeatableParserWithEmptyStringReturnsReject() {
         val parser = rep(any) then eos
 
-        assertEquals(parser(Readers.fromString("")).fold({ false }, { true }), true)
+        val result = parser.invoke(Readers.string("")).fold({ false }, { true })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldRepeatableParserWithNonEmptyStringReturnsAccept() {
         val parser = rep(any) then eos
 
-        assertEquals(parser(Readers.fromString("ab")).fold({ it.value.first == listOf('a', 'b') }, { false }), true)
+        val result = parser.invoke(Readers.string("ab")).fold({ it.value.first == listOf('a', 'b') }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldRepeatableNotParserWithNonEmptyStringReturnsAccept() {
         val parser = rep(not(char('a'))) then eos
 
-        assertEquals(parser(Readers.fromString("bc")).fold({ it.value.first == listOf('b', 'c') }, { false }), true)
+        val result = parser.invoke(Readers.string("bc")).fold({ it.value.first == listOf('b', 'c') }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldRepeatableNotThenCharParserWithNonEmptyStringReturnsAccept() {
-        val parser: CharParser<List<Char>> = optRep(not(char('a')))
+        val parser = optRep(not(char('a')))
 
-        assertEquals(parser(Readers.fromString("bca")).fold({ it.value == listOf('b', 'c') }, { false }), true)
+        val result = parser.invoke(Readers.string("bca")).fold({ it.value == listOf('b', 'c') }, { false })
+
+        assertEquals(result, true)
     }
 }

@@ -10,14 +10,18 @@ class T05_IntegerParser {
     fun shouldPositiveIntegerParserReturnAccept() {
         val parser = integer then eos map { it.first }
 
-        assertEquals(parser(Readers.fromString("+42")).fold({ it.value == 42 }, { false }), true)
+        val result = parser.invoke(Readers.string("+42")).fold({ it.value == 42 }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldNegativeIntegerParserReturnAccept() {
         val parser = integer then eos map { it.first }
 
-        assertEquals(parser(Readers.fromString("-42")).fold({ it.value == -42 }, { false }), true)
+        val result = parser.invoke(Readers.string("-42")).fold({ it.value == -42 }, { false })
+
+        assertEquals(result, true)
     }
     
 }

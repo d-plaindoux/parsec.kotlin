@@ -9,98 +9,127 @@ class T07_JSonNDParser {
 
     @Test
     fun shouldJSonParserReturnInteger() {
-        val parser = JSonParserND
+        val parser = JSonParser.jsonND
 
-        assertEquals(parser(Readers.fromString("42")).fold({ it.value == JSonNumber(42F) }, { false }), true)
+        val result = parser.invoke(Readers.string("42")).fold({ it.value == JSonNumber(42F) }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldJSonParserReturnNull() {
-        val parser = JSonParserND
+        val parser = JSonParser.jsonND
 
-        assertEquals(parser(Readers.fromString("null")).fold({ it.value == JSonNull }, { false }), true)
+        val result = parser.invoke(Readers.string("null")).fold({ it.value == JSonNull }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldJSonParserNDReturnTrue() {
-        val parser = JSonParserND
+        val parser = JSonParser.jsonND
 
-        assertEquals(parser(Readers.fromString("true")).fold({ it.value == JSonBoolean(true) }, { false }), true)
+        val result = parser.invoke(Readers.string("true")).fold({ it.value == JSonBoolean(true) }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldJSonParserNDReturnFalse() {
-        val parser = JSonParserND
+        val parser = JSonParser.jsonND
 
-        assertEquals(parser(Readers.fromString("false")).fold({ it.value == JSonBoolean(false) }, { false }), true)
+        val result = parser.invoke(Readers.string("false")).fold({ it.value == JSonBoolean(false) }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldJSonParserNDReturnString() {
-        val parser = JSonParserND
+        val parser = JSonParser.jsonND
 
-        assertEquals(parser(Readers.fromString("\"42\"")).fold({ it.value == JSonString("42") }, { false }), true)
+        val result = parser.invoke(Readers.string("\"42\"")).fold({ it.value == JSonString("42") }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldJSonParserNDReturnEmptyArray() {
-        val parser = JSonParserND
+        val parser = JSonParser.jsonND
 
-        print(parser(Readers.fromString("[]")))
+        val result = parser.invoke(Readers.string("[]")).fold({ it.value == JSonArray(listOf()) }, { false })
 
-        assertEquals(parser(Readers.fromString("[]")).fold({ it.value == JSonArray(listOf()) }, { false }), true)
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldJSonParserNDReturnEmptyObject() {
-        val parser = JSonParserND
+        val parser = JSonParser.jsonND
 
-        assertEquals(parser(Readers.fromString("{}")).fold({ it.value == JSonObject(mapOf()) }, { false }), true)
+        val result = parser.invoke(Readers.string("{}"))
+                .fold({ it.value == JSonObject(mapOf()) }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldJSonParserNDReturnSingletonObject() {
-        val parser = JSonParserND
+        val parser = JSonParser.jsonND
 
-        assertEquals(parser(Readers.fromString("{\"a\":42}")).fold({ it.value == JSonObject(mapOf("a" to JSonNumber(42F))) }, { false }), true)
+        val result = parser.invoke(Readers.string("{\"a\":42}"))
+                .fold({ it.value == JSonObject(mapOf("a" to JSonNumber(42F))) }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldJSonParserNDReturnSingletonArray() {
-        val parser = JSonParserND
+        val parser = JSonParser.jsonND
 
-        assertEquals(parser(Readers.fromString("[42]")).fold({ it.value == JSonArray(listOf(JSonNumber(42F))) }, { false }), true)
+        assertEquals(parser.invoke(Readers.string("[42]"))
+                .fold({ it.value == JSonArray(listOf(JSonNumber(42F))) }, { false }), true)
     }
 
     @Test
     fun shouldJSonParserNDReturnArray() {
-        val parser = JSonParserND
+        val parser = JSonParser.jsonND
 
-        assertEquals(parser(Readers.fromString("[42,43]")).fold({ it.value == JSonArray(listOf(JSonNumber(42F), JSonNumber(43F))) }, { false }), true)
+        val result = parser.invoke(Readers.string("[42,43]"))
+                .fold({ it.value == JSonArray(listOf(JSonNumber(42F), JSonNumber(43F))) }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldParseJSon1k() {
-        val parser = JSonParserND
+        val parser = JSonParser.jsonND
         val content = T07_JSonNDParser::class.java.getResource("/1k.json").readText()
+        val reader = JSonParser.reader(Readers.string(content))
 
-        assertEquals(parser(Readers.fromString(content)).fold({ true }, { false }), true)
+        val result = parser.invoke(reader).fold({ true }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldParseJSon100k() {
-        val parser = JSonParserND
+        val parser = JSonParser.jsonND
         val content = T07_JSonNDParser::class.java.getResource("/100k.json").readText()
+        val reader = JSonParser.reader(Readers.string(content))
 
-        assertEquals(parser(Readers.fromString(content)).fold({ true }, { false }), true)
+        val result = parser.invoke(reader).fold({ true }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldParseJSon300k() {
-        val parser = JSonParserND
+        val parser = JSonParser.jsonND
         val content = T07_JSonNDParser::class.java.getResource("/300k.json").readText()
+        val reader = JSonParser.reader(Readers.string(content))
 
-        assertEquals(parser(Readers.fromString(content)).fold({ true }, { false }), true)
+        val result = parser.invoke(reader).fold({ true }, { false })
+
+        assertEquals(result, true)
     }
 
 }

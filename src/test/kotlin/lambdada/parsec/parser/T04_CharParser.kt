@@ -10,42 +10,54 @@ class T04_CharParser {
     fun shouldCharParserReturnsAccept() {
         val parser = char('a')
 
-        assertEquals(parser(Readers.fromString("a")).fold({ it.value == 'a' }, { false }), true)
+        val result = parser.invoke(Readers.string("a")).fold({ it.value == 'a' }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldCharParserReturnsFails() {
         val parser = char('a')
 
-        assertEquals(parser(Readers.fromString("b")).fold({ false }, { true }), true)
+        val result = parser.invoke(Readers.string("b")).fold({ false }, { true })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldCharInRangeParserReturnsAccept() {
         val parser = charIn('a'..'z')
 
-        assertEquals(parser(Readers.fromString("a")).fold({ it.value == 'a' }, { false }), true)
+        val result = parser.invoke(Readers.string("a")).fold({ it.value == 'a' }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldCharInRangeParserReturnsFails() {
         val parser = charIn('b'..'z')
 
-        assertEquals(parser(Readers.fromString("a")).fold({ false }, { true }), true)
+        val result = parser.invoke(Readers.string("a")).fold({ false }, { true })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldCharInStringParserReturnsAccept() {
         val parser = charIn("-+")
 
-        assertEquals(parser(Readers.fromString("-")).fold({ it.value == '-' }, { false }), true)
+        val result = parser.invoke(Readers.string("-")).fold({ it.value == '-' }, { false })
+
+        assertEquals(result, true)
     }
 
     @Test
     fun shouldCharInStringParserReturnsFails() {
         val parser = charIn("-+")
 
-        assertEquals(parser(Readers.fromString("/")).fold({ false }, { true }), true)
+        val result = parser.invoke(Readers.string("/")).fold({ false }, { true })
+
+        assertEquals(result, true)
     }
 
 
@@ -53,7 +65,9 @@ class T04_CharParser {
     fun shouldCharParserOrParserReturnsAccept() {
         val parser = char('a') or char('b')
 
-        assertEquals(parser(Readers.fromString("b")).fold({ it.value == 'b' }, { false }), true)
+        val result = parser.invoke(Readers.string("b")).fold({ it.value == 'b' }, { false })
+
+        assertEquals(result, true)
     }
 
 }

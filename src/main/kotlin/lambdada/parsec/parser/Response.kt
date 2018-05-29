@@ -6,9 +6,9 @@ import lambdada.parsec.io.Reader
 // lambdada.parsec.Result data structure for Parser Combinator
 //
 
-sealed class Response<T, A>
-data class Accept<T, A>(val value: A, val input: Reader<T>, val consumed: Boolean) : Response<T, A>()
-data class Reject<T, A>(val position: Int, val consumed: Boolean) : Response<T, A>()
+sealed class Response<T, A>(open val consumed: Boolean)
+data class Accept<T, A>(val value: A, val input: Reader<T>, override val consumed: Boolean) : Response<T, A>(consumed)
+data class Reject<T, A>(val position: Int, override val consumed: Boolean) : Response<T, A>(consumed)
 
 fun <T, A, B> Response<T, A>.fold(accept: (Accept<T, A>) -> B, reject: (Reject<T, A>) -> B): B =
         when (this) {

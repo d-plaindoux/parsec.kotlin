@@ -23,7 +23,7 @@ private class `Reader from List`<T>(private val source: List<T>, override val of
 
 class Readers {
     companion object {
-        fun fromString(s: String): Reader<Char> = `Reader from List`(s.toList(), 0)
+        fun string(s: String): Reader<Char> = `Reader from List`(s.toList(), 0)
     }
 
 }
@@ -35,7 +35,7 @@ private class `Reader with Skip`<T>(private val skip: Parser<T, *>, private val 
         return c to `Reader with Skip`(skip, input)
     }
 
-    private fun performSkip() : Reader<T> {
+    private fun performSkip(): Reader<T> {
         val v = skip(reader)
         return when (v) {
             is Accept -> v.input
