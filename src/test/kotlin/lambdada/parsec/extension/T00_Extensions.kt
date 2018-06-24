@@ -1,20 +1,21 @@
 package lambdada.parsec.extension
 
 import org.junit.Assert
+import org.junit.Test
 
 class T00_Extensions {
-    // @Test
+    @Test
     fun shouldReturn1() {
         Assert.assertEquals(listOf('1').charsToInt(), 1)
     }
 
-    // @Test
+    @Test
     fun shouldReturn42() {
-        Assert.assertEquals(listOf('4','2').charsToInt(), 42)
+        Assert.assertEquals(listOf('4', '2').charsToInt(), 42)
     }
 
-    // @Test
+    @Test
     fun shouldReturnMinus42() {
-        Assert.assertEquals(listOf('-','4','2').charsToInt(), -42)
+        Assert.assertEquals(listOf('-', '4', '2').charsToInt(), -42)
     }
 }

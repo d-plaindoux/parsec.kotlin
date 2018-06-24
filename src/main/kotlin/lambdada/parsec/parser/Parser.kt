@@ -2,23 +2,10 @@ package lambdada.parsec.parser
 
 import lambdada.parsec.io.Reader
 
-//
-// Parser type definition
-//
-
-typealias Parser<T, A> = (Reader<T>) -> Response<T, A>
-
-
-typealias CharParser<A> = (Reader<Char>) -> Response<Char, A>
-
-fun <A> CharParser(parser: Parser<Char, A>): CharParser<A> {
-    return parser
+class Parser<A>(private val parser: (Reader) -> Response<A>) {
+    operator fun invoke(p1: Reader): Response<A> = parser.invoke(p1)
 }
 
-/*
-class CharParser<A>(private val parser: Parser<Char, A>) {
+//typealias Parser<A> = (Reader) -> Response<A>
+//fun <A> Parser(parser: Parser<A>): Parser<A> = parser
 
-    operator fun invoke(p1: Reader<Char>): Response<Char, A> = parser.invoke(p1)
-
-}
-*/

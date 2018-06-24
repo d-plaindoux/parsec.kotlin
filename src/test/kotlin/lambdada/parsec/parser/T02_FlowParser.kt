@@ -1,10 +1,10 @@
 package lambdada.parsec.parser
 
-import lambdada.parsec.io.Readers
+import lambdada.parsec.io.Reader
 import org.junit.Assert
 import org.junit.Test
 
-class T01_FlowParser {
+class T02_FlowParser {
 
     @Test
     fun shouldSequenceParserReturnsAccept() {
@@ -28,18 +28,18 @@ class T01_FlowParser {
     fun shouldSequenceParserReturnsAcceptWithLeftValue() {
         val parser = returns('a') thenLeft returns(1)
 
-        val result = parser.invoke(givenAReader()).fold({ it.value == 'a' }, { false })
+        val result = parser.invoke(givenAReader()).get()
 
-        Assert.assertEquals(result, true)
+        Assert.assertEquals(result, 'a')
     }
 
     @Test
     fun shouldSequenceParserReturnsAcceptWithRightValue() {
         val parser = returns('a') thenRight returns(1)
 
-        val result = parser.invoke(givenAReader()).fold({ it.value == 1 }, { false })
+        val result = parser.invoke(givenAReader()).get()
 
-        Assert.assertEquals(result, true)
+        Assert.assertEquals(result, 1)
     }
 
     @Test
@@ -60,7 +60,7 @@ class T01_FlowParser {
         Assert.assertEquals(result, true)
     }
 
-    private fun givenAReader() = Readers.string("")
+    private fun givenAReader() = Reader.string("")
 
 
 }

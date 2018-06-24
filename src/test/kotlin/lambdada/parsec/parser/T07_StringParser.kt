@@ -1,16 +1,16 @@
 package lambdada.parsec.parser
 
-import lambdada.parsec.io.Readers
+import lambdada.parsec.io.Reader
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class T06_StringParser {
+class T07_StringParser {
 
     @Test
     fun shouldStringParserReturnAccept() {
         val parser = string("hello") thenLeft eos
 
-        val result = parser.invoke(Readers.string("hello")).fold({ it.value == "hello" }, { false })
+        val result = parser.invoke(Reader.string("hello")).fold({ it.value == "hello" }, { false })
 
         assertEquals(result, true)
     }
@@ -19,7 +19,7 @@ class T06_StringParser {
     fun shouldDelimitedStringParserReturnEmptyString() {
         val parser = delimitedString() thenLeft eos
 
-        val result = parser.invoke(Readers.string(""""hel\"lo"""")).fold({ it.value }, { null })
+        val result = parser.invoke(Reader.string(""""hel\"lo"""")).fold({ it.value }, { null })
 
         assertEquals(result, """hel\"lo""")
     }
@@ -28,7 +28,7 @@ class T06_StringParser {
     fun shouldStringWithMetaCharacterParserReturnAccept() {
         val parser = string("hel\\nlo") thenLeft eos
 
-        val result = parser.invoke(Readers.string("hel\\nlo")).fold({ it.value == "hel\\nlo" }, { false })
+        val result = parser.invoke(Reader.string("hel\\nlo")).fold({ it.value == "hel\\nlo" }, { false })
 
         assertEquals(result, true)
     }

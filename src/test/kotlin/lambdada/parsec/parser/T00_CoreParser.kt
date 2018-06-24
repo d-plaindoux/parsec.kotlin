@@ -1,16 +1,18 @@
 package lambdada.parsec.parser
 
-import lambdada.parsec.io.Readers
+import lambdada.parsec.io.Reader
 import org.junit.Assert
 import org.junit.Test
 
 class T00_CoreParser {
 
+    private fun Response<*>.isSuccess() : Boolean = this.get()?.let { true } ?: false // Warning A?? is isomorphic to A?
+
     @Test
     fun shouldReturnsParserReturnsAccept() {
         val parser = returns(true)
 
-        val result = parser.invoke(givenAReader()).fold({ it.value }, { false })
+        val result = parser.invoke(givenAReader()).isSuccess()
 
         Assert.assertEquals(result, true)
     }
@@ -19,45 +21,18 @@ class T00_CoreParser {
     fun shouldFailsParserReturnsError() {
         val parser = fails<Char>()
 
-        val result = parser.invoke(givenAReader()).fold({ false }, { true })
+        val result = parser.invoke(givenAReader()).isSuccess()
 
-        Assert.assertEquals(result, true)
-    }
-
-    @Test
-    fun shouldMappedReturnsParserReturnsAccept() {
-        val parser = returns('a') map { it == 'a' }
-
-        val result = parser.invoke(givenAReader()).fold({ it.value }, { false })
-
-        Assert.assertEquals(result, true)
-    }
-
-    @Test
-    fun shouldFlapMappedReturnsParserReturnsAccept() {
-        val parser = returns('a') flatMap { returns(it + "b") } map { it == "ab" }
-
-        val result = parser.invoke(givenAReader()).fold({ it.value }, { false })
-
-        Assert.assertEquals(result, true)
-    }
-
-    @Test
-    fun shouldFlapMappedReturnsParserReturnsError() {
-        val parser = returns('a') flatMap { fails<Char>() }
-
-        val result = parser.invoke(givenAReader()).fold({ false }, { true })
-
-        Assert.assertEquals(result, true)
+        Assert.assertEquals(result, false)
     }
 
     @Test
     fun shouldLazyReturnsParserReturnsAccept() {
-        val parser = lazy { returns('a') } map { it == 'a' }
+        val parser = lazy { returns('a') }
 
-        val result = parser.invoke(givenAReader()).fold({ it.value }, { false })
+        val result = parser.invoke(givenAReader()).get()
 
-        Assert.assertEquals(result, true)
+        Assert.assertEquals(result, 'a')
     }
 
     @Test
@@ -69,6 +44,6 @@ class T00_CoreParser {
         Assert.assertEquals(result, true)
     }
 
-    private fun givenAReader() = Readers.string("")
+    private fun givenAReader() = Reader.string("")
 
 }
