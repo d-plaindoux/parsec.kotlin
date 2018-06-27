@@ -1,6 +1,7 @@
 package lambdada.parsec.parser
 
-import lambdada.parsec.io.Reader
+import lambdada.parsec.io.CharReader
+import lambdada.parsec.utils.Location
 
 //
 // Response data structure for Parser Combinator
@@ -8,19 +9,14 @@ import lambdada.parsec.io.Reader
 
 sealed class Response<A>(open val consumed: Boolean) {
 
-    data class Accept<A>(val value: A, val input: Reader, override val consumed: Boolean) : Response<A>(consumed)
+    data class Accept<A>(val value: A, val input: CharReader, override val consumed: Boolean) : Response<A>(consumed)
+    data class Reject<A>(val location: Location, override val consumed: Boolean) : Response<A>(consumed)
 
-    data class Reject<A>(val position: Int, override val consumed: Boolean) : Response<A>(consumed)
-
-    // Cf. Pseudo catamorphism
+    // Catamorphism
     fun <B> fold(accept: (Accept<A>) -> B, reject: (Reject<A>) -> B): B =
             when (this) {
                 is Accept -> accept(this)
                 is Reject -> reject(this)
             }
 
-    fun get(): A? = this.fold({ it.value }, { null })
-
 }
-
-// Cf. Either type with nominal and error responses

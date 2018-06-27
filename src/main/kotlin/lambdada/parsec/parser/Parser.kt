@@ -1,11 +1,12 @@
 package lambdada.parsec.parser
 
-import lambdada.parsec.io.Reader
+import lambdada.parsec.io.CharReader
 
-class Parser<A>(private val parser: (Reader) -> Response<A>) {
-    operator fun invoke(p1: Reader): Response<A> = parser.invoke(p1)
+class Parser<A>(private val parser: (CharReader) -> Response<A>) {
+    fun parse(charReader: CharReader): Response<A> = parser(charReader)
 }
 
-//typealias Parser<A> = (Reader) -> Response<A>
+//typealias Parser<A> = (CharReader) -> Response<A>
+//
 //fun <A> Parser(parser: Parser<A>): Parser<A> = parser
 

@@ -1,4 +1,4 @@
-package lambdada.parsec.json
+package lambdada.parsec.examples.json
 
 interface JSon
 

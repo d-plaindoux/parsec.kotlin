@@ -3,8 +3,6 @@ package lambdada.parsec.parser
 import lambdada.parsec.extension.charsToFloat
 import lambdada.parsec.extension.charsToInt
 import lambdada.parsec.extension.stringsToString
-import lambdada.parsec.parser.Response.Accept
-import lambdada.parsec.parser.Response.Reject
 
 //
 // Specific Char parsers
@@ -17,17 +15,17 @@ fun charIn(c: CharRange): Parser<Char> =
         doTry(any satisfy { c.contains(it) })
 
 fun charIn(s: String): Parser<Char> =
-        doTry(any satisfy { s.contains(it) })
+        doTry(any satisfy { it in s })
 
 //
 // Negation
 //
 
 fun not(p: Parser<Char>): Parser<Char> = Parser {
-    val a = p.invoke(it)
+    val a = p.parse(it)
     when (a) {
-        is Reject -> any.invoke(it)
-        is Accept -> fails<Char>().invoke(it)
+        is Response.Reject<*> -> any.parse(it)
+        is Response.Accept<*> -> fails<Char>().parse(it)
     }
 }
 
@@ -36,11 +34,12 @@ fun not(p: Parser<Char>): Parser<Char> = Parser {
 //
 
 fun string(s: String): Parser<String> =
-        s.fold(returns(Unit), { a, c -> a thenLeft char(c) }) map { s }
+        s.fold(returns(Unit)) { a, c -> a thenLeft char(c) } map { s }
 
 fun delimitedString(): Parser<String> {
-    val any: Parser<String> = doTry(string("\\\"")) or (not(char('"')) map { it.toString() })
-    return char('"') thenRight optRep(any) thenLeft char('"') map { it.stringsToString() }
+    val charExceptColumn = doTry(string("\\\"")) or (not(char('"')) map Char::toString)
+
+    return char('"') thenRight optRep(charExceptColumn) thenLeft char('"') map { it.stringsToString() }
 }
 
 //
