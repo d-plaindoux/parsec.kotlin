@@ -83,7 +83,7 @@ class T08_JSonParser {
         val url = T08_JSonParser::class.java.getResource("/1k.json")
         val reader = JSonParser.reader(CharReader.url(url))
 
-        assertEquals(parser.parse(reader).fold({ print(it.value); true }, { false }), true)
+        assertEquals(parser.parse(reader).fold({ true }, { false }), true)
     }
 
 }

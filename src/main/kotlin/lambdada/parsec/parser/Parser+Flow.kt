@@ -56,7 +56,7 @@ fun <A> opt(p: Parser<A>): Parser<A?> =
 //}
 
 fun <A> optRep(p: Parser<A>): Parser<List<A>> =
-        opt(p then lazy { optRep(p) } map { (p, l) -> listOf(p) + l }) map { it ?: listOf() }
+        opt(p then lazy { optRep(p) }) map { it?.let { listOf(it.first) + it.second } ?: listOf() }
         // Parser { optRep(p, listOf(), false, it) }
 
 fun <A> rep(p: Parser<A>): Parser<List<A>> =

@@ -7,7 +7,6 @@ import org.junit.Test
 class T01_MonadParser {
 
     private fun <A> Response<A>.get(): A? = this.fold({ it.value }, { null })
-    private fun Response<*>.isSuccess(): Boolean = this.fold({ true }, { false })
 
     @Test
     fun shouldMappedReturnsParserReturnsAccept() {

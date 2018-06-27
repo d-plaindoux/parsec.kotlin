@@ -1,5 +1,6 @@
 package lambdada.parsec.parser
 
+import lambdada.parsec.extension.pipe
 import lambdada.parsec.parser.Response.Accept
 import lambdada.parsec.parser.Response.Reject
 
@@ -39,4 +40,25 @@ infix fun <A, B> Parser<A>.flatMap(f: (A) -> Parser<B>): Parser<B> =
 //
 
 infix fun <A> Parser<A>.satisfy(p: (A) -> Boolean): Parser<A> =
-        this flatMap { it:A -> if (p(it)) returns(it) else fails() }
+        this flatMap {
+            if (p(it)) {
+                returns(it)
+            } else {
+                fails()
+            }
+        }
+
+//
+// Applicative
+//
+
+infix fun <A, B> Parser<A>.applicative(f: Parser<(A) -> B>): Parser<B> =
+// this flatMap { v -> f map { it(v) } }
+        f flatMap { f -> this map f }
+
+//
+// Kliesli
+//
+
+infix fun <A, B, C> ((A) -> Parser<B>).then(p2: (B) -> Parser<C>): (A) -> Parser<C> =
+        this pipe { b -> b flatMap p2 }
