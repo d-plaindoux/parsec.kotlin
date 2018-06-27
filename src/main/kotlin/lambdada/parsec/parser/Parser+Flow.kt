@@ -24,18 +24,17 @@ infix fun <A, B> Parser<A>.thenRight(p: Parser<B>): Parser<B> =
 // Choice
 //
 
-infix fun <A> Parser<A>.or(p: Parser<A>): Parser<A> =
-        Parser { reader ->
-                        val a = this.parse(reader)
+infix fun <A> Parser<A>.or(p: Parser<A>): Parser<A> = Parser { reader ->
+    val a = this.parse(reader)
+    when (a.consumed) {
+        true -> a
+        false ->
             when (a) {
-                is Reject ->
-                    when (a.consumed) {
-                        true -> a // Not commutative
-                        false -> p.parse(reader)
-                    }
                 is Accept -> a
+                is Reject -> p.parse(reader)
             }
-        }
+    }
+}
 
 
 //
@@ -57,7 +56,7 @@ fun <A> opt(p: Parser<A>): Parser<A?> =
 
 fun <A> optRep(p: Parser<A>): Parser<List<A>> =
         opt(p then lazy { optRep(p) }) map { it?.let { listOf(it.first) + it.second } ?: listOf() }
-        // Parser { optRep(p, listOf(), false, it) }
+// Parser { optRep(p, listOf(), false, it) }
 
 fun <A> rep(p: Parser<A>): Parser<List<A>> =
         p then optRep(p) map { r -> listOf(r.first) + r.second }

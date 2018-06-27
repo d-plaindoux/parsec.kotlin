@@ -38,11 +38,50 @@ fun <A> Response<A>.isSuccess(): Boolean = this.fold({ true }, { false })
 - fails
 - any
 
+```kotlin
+fun <A> returns(v: A): Parser<A> =
+        Parser { Accept(v, it, false) }
+
+fun <A> fails(): Parser<A> =
+        Parser { Reject<A>(it.location(), false) }
+
+var any: Parser<Char> = Parser {
+    when (it.canRead()) {
+        true -> {
+            val (c, input) = it.read()
+            Accept(c, input, true)
+        }
+        false -> Reject<Char>(it.location(), false)
+    }
+}
+```
+
 # Core Parser Combinators
 
 - lazy
 - doTry
 - lookahead
+
+```kotlin
+fun <A> lazy(f: () -> Parser<A>): Parser<A> =
+        Parser { f().parse(it) }
+
+fun <A> doTry(p: Parser<A>): Parser<A> = Parser {
+    val a = p.parse(it)
+    when (a) {
+        is Accept -> a
+        is Reject -> Reject<A>(it.location(), false)
+    }
+}
+
+fun <A> lookahead(p: Parser<A>): Parser<A> = Parser {
+    val a = p.parse(it)
+    when (a) {
+        is Accept -> Accept(a.value, it, false)
+        is Reject -> Reject<A>(it.location(), false)
+    }
+}
+```
 
 # Monadic Parser Combinators
 
@@ -101,18 +140,17 @@ infix fun <A> Parser<A>.satisfy(p: (A) -> Boolean): Parser<A> =
 infix fun <A, B> Parser<A>.then(p: Parser<B>): Parser<Pair<A, B>> =
         this flatMap { a -> p map { b -> a to b } }
 
-infix fun <A> Parser<A>.or(p: Parser<A>): Parser<A> =
-        Parser { reader ->
-                        val a = this.parse(reader)
+infix fun <A> Parser<A>.or(p: Parser<A>): Parser<A> = Parser { reader ->
+    val a = this.parse(reader)
+    when (a.consumed) {
+        true -> a
+        false ->
             when (a) {
-                is Reject ->
-                    when (a.consumed) {
-                        true -> a // Not commutative
-                        false -> p.parse(reader)
-                    }
                 is Accept -> a
+                is Reject -> p.parse(reader)
             }
-        }
+    }
+}
 
 fun <A> opt(p: Parser<A>): Parser<A?> =
         p map { it as A? } or returns<A?>(null)
