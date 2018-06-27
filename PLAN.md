@@ -38,15 +38,11 @@ fun <A> Response<A>.isSuccess(): Boolean = this.fold({ true }, { false })
 - fails
 - any
 
-# GOTO SLIDES
-
 # Core Parser Combinators
 
 - lazy
 - doTry
 - lookahead
-
-# GOTO SLIDES
 
 # Monadic Parser Combinators
 
@@ -55,7 +51,6 @@ fun <A> Response<A>.isSuccess(): Boolean = this.fold({ true }, { false })
 - flatMap
     - INTRODUCE **infix** 
 - satisfy
-
 
 ```kotlin
 infix fun <A, B> Parser<A>.map(f: (A) -> B): Parser<B> =
@@ -88,16 +83,11 @@ infix fun <A, B> Parser<A>.flatMap(f: (A) -> Parser<B>): Parser<B> =
 infix fun <A> Parser<A>.satisfy(p: (A) -> Boolean): Parser<A> =
         this flatMap { if (p(it)) { returns(it) } else { fails() } }
 ```
-
-# GOTO SLIDES
-
 # Type aliasing
 
 - remove class
 - define typealias
 - define function Parse for compatibility
-
-# GOTO SLIDES
 
 # Flow Parser Combinators
 
