@@ -10,9 +10,9 @@ class T00_CoreParser {
 
     @Test
     fun shouldReturnsParserReturnsAccept() {
-        val parser = returns(true)
+        val parser : Parser<Boolean> = returns(true)
 
-        val result = parser.parse(givenAReader()).isSuccess()
+        val result = parser.invoke(givenAReader()).isSuccess()
 
         Assert.assertEquals(result, true)
     }
@@ -21,7 +21,7 @@ class T00_CoreParser {
     fun shouldFailsParserReturnsError() {
         val parser = fails<Char>()
 
-        val result = parser.parse(givenAReader()).isSuccess()
+        val result = parser.invoke(givenAReader()).isSuccess()
 
         Assert.assertEquals(result, false)
     }
@@ -30,7 +30,7 @@ class T00_CoreParser {
     fun shouldLazyReturnsParserReturnsAccept() {
         val parser = lazy { returns('a') }
 
-        val result = parser.parse(givenAReader()).get()
+        val result = parser.invoke(givenAReader()).get()
 
         Assert.assertEquals(result, 'a')
     }
@@ -39,7 +39,7 @@ class T00_CoreParser {
     fun shouldLazyFailsParserReturnsError() {
         val parser = lazy { fails<Char>() }
 
-        val result = parser.parse(givenAReader()).fold({ false }, { true })
+        val result = parser.invoke(givenAReader()).fold({ false }, { true })
 
         Assert.assertEquals(result, true)
     }

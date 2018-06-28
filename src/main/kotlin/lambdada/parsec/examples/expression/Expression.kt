@@ -18,7 +18,7 @@ object ExpressionParser {
             FLOAT or (char('(') thenRight lazy { EXPR() } thenLeft char(')'))
 
     fun EXPR(): Parser<Float> =
-            lazy { SEXPR() then opt(charIn("+*") then EXPR()) } map { p ->
+            lazy { SEXPR() then opt(charIn('+','*') then EXPR()) }.map { p ->
                 p.second?.let { operation(it.first)(p.first, it.second) } ?: p.first
             }
 

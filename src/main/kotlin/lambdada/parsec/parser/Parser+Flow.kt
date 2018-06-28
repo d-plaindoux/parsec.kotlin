@@ -1,5 +1,6 @@
 package lambdada.parsec.parser
 
+import lambdada.parsec.io.CharReader
 import lambdada.parsec.parser.Response.Accept
 import lambdada.parsec.parser.Response.Reject
 
@@ -8,30 +9,29 @@ import lambdada.parsec.parser.Response.Reject
 // NOTE: [do] comprehension should be better
 
 infix fun <A, B> Parser<A>.then(p: Parser<B>): Parser<Pair<A, B>> =
-        this flatMap { a -> p map { b -> a to b } }
-
+        this flatMap { a -> p.map { b -> a to b }}
 //
 // Alternate Then
 //
 
 infix fun <A, B> Parser<A>.thenLeft(p: Parser<B>): Parser<A> =
-        this then p map { it.first }
+        this then p map { a -> a.first }
 
 infix fun <A, B> Parser<A>.thenRight(p: Parser<B>): Parser<B> =
-        this then p map { it.second }
+        this then p map { a -> a.second }
 
 //
 // Choice
 //
 
 infix fun <A> Parser<A>.or(p: Parser<A>): Parser<A> = Parser { reader ->
-    val a = this.parse(reader)
+    val a = this(reader)
     when (a.consumed) {
         true -> a
         false ->
             when (a) {
                 is Accept -> a
-                is Reject -> p.parse(reader)
+                is Reject -> p(reader)
             }
     }
 }
@@ -46,17 +46,16 @@ fun <A> opt(p: Parser<A>): Parser<A?> =
 
 // NOTE: Greedy parsers | Prefix i.e. Function vs. Method
 
-//private tailrec fun <A> optRep(p: Parser<A>, acc: List<A>, consumed: Boolean, charReader: CharReader): Response<List<A>> {
-//    val a = p.parse(charReader)
-//    return when (a) {
-//        is Reject -> Accept(acc, charReader, consumed)
-//        is Accept -> optRep(p, acc + a.value, consumed || a.consumed, a.input)
-//    }
-//}
+private tailrec fun <A> optRep(p: Parser<A>, acc: List<A>, consumed: Boolean, charReader: CharReader): Response<List<A>> {
+    val a = p(charReader)
+    return when (a) {
+        is Reject -> Accept(acc, charReader, consumed)
+        is Accept -> optRep(p, acc + a.value, consumed || a.consumed, a.input)
+    }
+}
 
 fun <A> optRep(p: Parser<A>): Parser<List<A>> =
-        opt(p then lazy { optRep(p) }) map { it?.let { listOf(it.first) + it.second } ?: listOf() }
-// Parser { optRep(p, listOf(), false, it) }
+        Parser { optRep(p, listOf(), false, it) }
 
 fun <A> rep(p: Parser<A>): Parser<List<A>> =
         p then optRep(p) map { r -> listOf(r.first) + r.second }

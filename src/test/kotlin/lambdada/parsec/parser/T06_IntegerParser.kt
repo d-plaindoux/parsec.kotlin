@@ -8,18 +8,18 @@ class T06_IntegerParser {
 
     @Test
     fun shouldPositiveIntegerParserReturnAccept() {
-        val parser = INTEGER then eos map { it.first }
+        val parser = INTEGER thenLeft  eos
 
-        val result = parser.parse(CharReader.string("+42")).fold({ it.value == 42 }, { false })
+        val result = parser.invoke(CharReader.string("+42")).fold({ it.value == 42 }, { false })
 
         assertEquals(result, true)
     }
 
     @Test
     fun shouldNegativeIntegerParserReturnAccept() {
-        val parser = INTEGER then eos map { it.first }
+        val parser = INTEGER thenLeft  eos
 
-        val result = parser.parse(CharReader.string("-42")).fold({ it.value == -42 }, { false })
+        val result = parser.invoke(CharReader.string("-42")).fold({ it.value == -42 }, { false })
 
         assertEquals(result, true)
     }

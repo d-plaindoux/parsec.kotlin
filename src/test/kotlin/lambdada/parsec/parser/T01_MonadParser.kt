@@ -10,9 +10,9 @@ class T01_MonadParser {
 
     @Test
     fun shouldMappedReturnsParserReturnsAccept() {
-        val parser = returns('a').map { it == 'a' }
+        val parser : Parser<Boolean> = returns('a').map { it -> it == 'a' }
 
-        val result = parser.parse(givenAReader()).get()
+        val result = parser.invoke(givenAReader()).get()
 
         Assert.assertEquals(result, true)
     }
@@ -21,7 +21,7 @@ class T01_MonadParser {
     fun shouldJoinReturnedReturns() {
         val parser = join(returns(any))
 
-        val result = parser.parse(givenAReader()).get()
+        val result = parser.invoke(givenAReader()).get()
 
         Assert.assertEquals(result, 'a')
     }
@@ -30,7 +30,7 @@ class T01_MonadParser {
     fun shouldJoinReturnedReturnsWithConsumed() {
         val parser = join(returns(any))
 
-        val result = parser.parse(givenAReader())
+        val result = parser.invoke(givenAReader())
 
         Assert.assertEquals(result.consumed, true)
     }
@@ -39,7 +39,7 @@ class T01_MonadParser {
     fun shouldJoinReturnedReturnsWithoutConsumed() {
         val parser = join(returns(returns('a')))
 
-        val result = parser.parse(givenAReader())
+        val result = parser.invoke(givenAReader())
 
         Assert.assertEquals(result.consumed, false)
     }
@@ -48,7 +48,7 @@ class T01_MonadParser {
     fun shouldFlapMappedReturnsParserReturnsAccept() {
         val parser = any.flatMap { returns(it + "b") }.map { it == "ab" }
 
-        val result = parser.parse(givenAReader()).get()
+        val result = parser.invoke(givenAReader()).get()
 
         Assert.assertEquals(result, true)
     }
@@ -57,7 +57,7 @@ class T01_MonadParser {
     fun shouldFlapMappedReturnsParserReturnsConsumed() {
         val parser = any.flatMap { returns(it + "b") }.map { it == "ab" }
 
-        val result = parser.parse(givenAReader())
+        val result = parser.invoke(givenAReader())
 
         Assert.assertEquals(result.consumed, true)
     }
@@ -66,7 +66,7 @@ class T01_MonadParser {
     fun shouldFlapMappedReturnsParserReturnsError() {
         val parser = returns('a').flatMap { fails<Char>() }
 
-        val result = parser.parse(givenAReader()).isSuccess()
+        val result = parser.invoke(givenAReader()).isSuccess()
 
         Assert.assertEquals(result, false)
     }

@@ -10,7 +10,7 @@ class T04_ElementParser {
     fun shouldAnyParserReturnsAccept() {
         val parser = any
 
-        val result = parser.parse(CharReader.string("a")).fold({ it.value == 'a' && it.consumed }, { false })
+        val result = parser.invoke(CharReader.string("a")).fold({ it.value == 'a' && it.consumed }, { false })
 
         Assert.assertEquals(result, true)
     }
@@ -19,7 +19,7 @@ class T04_ElementParser {
     fun shouldAnyParserReturnsReject() {
         val parser = any
 
-        val result = parser.parse(CharReader.string("")).fold({ false }, { true })
+        val result = parser.invoke(CharReader.string("")).fold({ false }, { true })
 
         Assert.assertEquals(result, true)
     }
@@ -28,7 +28,7 @@ class T04_ElementParser {
     fun shouldEOSParserReturnsAccept() {
         val parser = eos
 
-        val result = parser.parse(CharReader.string("")).fold({ true }, { false })
+        val result = parser.invoke(CharReader.string("")).fold({ true }, { false })
 
         Assert.assertEquals(result, true)
     }
@@ -37,25 +37,25 @@ class T04_ElementParser {
     fun shouldEOSParserReturnsReject() {
         val parser = eos
 
-        val result = parser.parse(CharReader.string("a")).fold({ false }, { true })
+        val result = parser.invoke(CharReader.string("a")).fold({ false }, { true })
 
         Assert.assertEquals(result, true)
     }
 
     @Test
     fun shouldChoiceParserReturnsReject() {
-        val parser = ((any then any map { it.first }) or any) then eos
+        val parser = ((any thenLeft any) or any) then eos
 
-        val result = parser.parse(CharReader.string("a")).fold({ false }, { true })
+        val result = parser.invoke(CharReader.string("a")).fold({ false }, { true })
 
         Assert.assertEquals(result, true)
     }
 
     @Test
     fun shouldChoiceWithBacktrackParserReturnsAccept() {
-        val parser = (doTry(any then any map { it.first }) or any) then eos
+        val parser = (doTry((any then any).map { it.first }) or any) then eos
 
-        val result = parser.parse(CharReader.string("a")).fold({ true }, { false })
+        val result = parser.invoke(CharReader.string("a")).fold({ true }, { false })
 
         Assert.assertEquals(result, true)
     }
@@ -64,16 +64,16 @@ class T04_ElementParser {
     fun shouldSatisfyParserReturnsAccept() {
         val parser = any
 
-        val result = parser.parse(CharReader.string("a")).fold({ it.value == 'a' && it.consumed }, { false })
+        val result = parser.invoke(CharReader.string("a")).fold({ it.value == 'a' && it.consumed }, { false })
 
         Assert.assertEquals(result, true)
     }
 
     @Test
     fun shouldNotSatisfyOrAnyParserReturnsAccept() {
-        val parser = doTry(any satisfy { it == 'a' }) or any
+        val parser = doTry(any.satisfy { it == 'a' }) or any
 
-        val result = parser.parse(CharReader.string("b")).fold({ it.value == 'b' && it.consumed }, { false })
+        val result = parser.invoke(CharReader.string("b")).fold({ it.value == 'b' && it.consumed }, { false })
 
         Assert.assertEquals(result, true)
     }
@@ -82,7 +82,7 @@ class T04_ElementParser {
     fun shouldNotCharParserReturnsAccept() {
         val parser = not(char('a'))
 
-        val result = parser.parse(CharReader.string("b")).fold({ it.value == 'b' && it.consumed }, { false })
+        val result = parser.invoke(CharReader.string("b")).fold({ it.value == 'b' && it.consumed }, { false })
 
         Assert.assertEquals(result, true)
     }
@@ -91,7 +91,7 @@ class T04_ElementParser {
     fun shouldNotCharParserReturnsReject() {
         val parser = not(char('a'))
 
-        val result = parser.parse(CharReader.string("a")).fold({ false }, { true })
+        val result = parser.invoke(CharReader.string("a")).fold({ false }, { true })
 
         Assert.assertEquals(result, true)
     }

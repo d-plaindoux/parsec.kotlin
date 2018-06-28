@@ -10,7 +10,7 @@ class T07_StringParser {
     fun shouldStringParserReturnAccept() {
         val parser = string("hello") thenLeft eos
 
-        val result = parser.parse(CharReader.string("hello")).fold({ it.value == "hello" }, { false })
+        val result = parser.invoke(CharReader.string("hello")).fold({ it.value == "hello" }, { false })
 
         assertEquals(result, true)
     }
@@ -19,7 +19,7 @@ class T07_StringParser {
     fun shouldDelimitedStringParserReturnEmptyString() {
         val parser = delimitedString() thenLeft eos
 
-        val result = parser.parse(CharReader.string(""""hel\"lo"""")).fold({ it.value }, { null })
+        val result = parser.invoke(CharReader.string(""""hel\"lo"""")).fold({ it.value }, { null })
 
         assertEquals(result, """hel\"lo""")
     }
@@ -28,7 +28,7 @@ class T07_StringParser {
     fun shouldStringWithMetaCharacterParserReturnAccept() {
         val parser = string("hel\\nlo") thenLeft eos
 
-        val result = parser.parse(CharReader.string("hel\\nlo")).fold({ it.value == "hel\\nlo" }, { false })
+        val result = parser.invoke(CharReader.string("hel\\nlo")).fold({ it.value == "hel\\nlo" }, { false })
 
         assertEquals(result, true)
     }

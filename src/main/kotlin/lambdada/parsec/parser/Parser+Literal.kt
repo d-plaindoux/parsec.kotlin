@@ -17,15 +17,18 @@ fun charIn(c: CharRange): Parser<Char> =
 fun charIn(s: String): Parser<Char> =
         doTry(any satisfy { it in s })
 
+fun charIn(vararg s: Char): Parser<Char> =
+        doTry(any satisfy { it in s })
+
 //
 // Negation
 //
 
 fun not(p: Parser<Char>): Parser<Char> = Parser {
-    val a = p.parse(it)
+    val a = p.invoke(it)
     when (a) {
-        is Response.Reject<*> -> any.parse(it)
-        is Response.Accept<*> -> fails<Char>().parse(it)
+        is Response.Reject<*> -> any.invoke(it)
+        is Response.Accept<*> -> fails<Char>().invoke(it)
     }
 }
 
@@ -34,12 +37,12 @@ fun not(p: Parser<Char>): Parser<Char> = Parser {
 //
 
 fun string(s: String): Parser<String> =
-        s.fold(returns(Unit)) { a, c -> a thenLeft char(c) } map { s }
+        s.fold(returns(Unit)) { a, c -> a thenLeft char(c) }.map { s }
 
 fun delimitedString(): Parser<String> {
-    val charExceptColumn = doTry(string("\\\"")) or (not(char('"')) map Char::toString)
+    val charExceptColumn = doTry(string("\\\"")) or (not(char('"')).map(Char::toString))
 
-    return char('"') thenRight optRep(charExceptColumn) thenLeft char('"') map { it.stringsToString() }
+    return (char('"') thenRight optRep(charExceptColumn) thenLeft char('"')).map { it.stringsToString() }
 }
 
 //
@@ -50,12 +53,12 @@ private val STRING_NUMBER: Parser<List<Char>> =
         rep(charIn('0'..'9'))
 
 private val STRING_INTEGER: Parser<List<Char>> =
-        opt(charIn("-+")) map { it ?: '+' } then STRING_NUMBER map { (s, n) -> (listOf(s) + n) }
+        (opt(charIn("-+")).map { it ?: '+' } then STRING_NUMBER).map { (s, n) -> (listOf(s) + n) }
 
 val INTEGER: Parser<Int> =
-        STRING_INTEGER map { it.charsToInt() }
+        STRING_INTEGER.map { it.charsToInt() }
 
 val FLOAT: Parser<Float> =
-        STRING_INTEGER then (opt(char('.') then STRING_NUMBER map { (s, n) -> (listOf(s) + n) }) map {
+        (STRING_INTEGER then (opt((char('.') then STRING_NUMBER).map { (s, n) -> (listOf(s) + n) }).map {
             it ?: listOf()
-        }) map { (s, n) -> (s + n).charsToFloat() }
+        })).map { (s, n) -> (s + n).charsToFloat() }

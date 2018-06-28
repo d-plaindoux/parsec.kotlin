@@ -11,7 +11,7 @@ private class CharReaderWithSkip(private val skip: Parser<*>, private val charRe
 
     companion object {
         internal fun skipNow(skip: Parser<*>, charReader: CharReader): CharReaderWithSkip =
-                CharReaderWithSkip(skip, skip.parse(charReader).fold({ it.input }, { charReader }))
+                CharReaderWithSkip(skip, skip.invoke(charReader).fold({ it.input }, { charReader }))
     }
 
 }
