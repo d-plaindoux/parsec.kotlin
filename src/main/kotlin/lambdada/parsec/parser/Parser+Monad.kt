@@ -9,7 +9,7 @@ import lambdada.parsec.parser.Response.Reject
 //
 
 // p.map(...)
-infix fun <A, B> Parser<A>.map(f: (A) -> B): Parser<B> = Parser { reader ->
+infix fun <A, B> Parser<A>.map(f: (A) -> B): Parser<B> = { reader ->
     val a = this.invoke(reader)
     when (a) {
         is Reject -> Reject<B>(a.location, a.consumed)
@@ -17,9 +17,8 @@ infix fun <A, B> Parser<A>.map(f: (A) -> B): Parser<B> = Parser { reader ->
     }
 }
 
-
-fun <A> join(p: Parser<Parser<A>>): Parser<A> = Parser { reader ->
-    val a : Response<Parser<A>> = p.invoke(reader)
+fun <A> join(p: Parser<Parser<A>>): Parser<A> = { reader ->
+    val a: Response<Parser<A>> = p.invoke(reader)
     when (a) {
         is Reject -> Reject<A>(a.location, a.consumed)
         is Accept -> {

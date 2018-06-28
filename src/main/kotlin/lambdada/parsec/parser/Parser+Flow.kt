@@ -9,7 +9,7 @@ import lambdada.parsec.parser.Response.Reject
 // NOTE: [do] comprehension should be better
 
 infix fun <A, B> Parser<A>.then(p: Parser<B>): Parser<Pair<A, B>> =
-        this flatMap { a -> p.map { b -> a to b }}
+        this flatMap { a -> p.map { b -> a to b } }
 //
 // Alternate Then
 //
@@ -24,7 +24,7 @@ infix fun <A, B> Parser<A>.thenRight(p: Parser<B>): Parser<B> =
 // Choice
 //
 
-infix fun <A> Parser<A>.or(p: Parser<A>): Parser<A> = Parser { reader ->
+infix fun <A> Parser<A>.or(p: Parser<A>): Parser<A> = { reader ->
     val a = this(reader)
     when (a.consumed) {
         true -> a
@@ -55,7 +55,7 @@ private tailrec fun <A> optRep(p: Parser<A>, acc: List<A>, consumed: Boolean, ch
 }
 
 fun <A> optRep(p: Parser<A>): Parser<List<A>> =
-        Parser { optRep(p, listOf(), false, it) }
+        { optRep(p, listOf(), false, it) }
 
 fun <A> rep(p: Parser<A>): Parser<List<A>> =
         p then optRep(p) map { r -> listOf(r.first) + r.second }

@@ -24,7 +24,7 @@ fun charIn(vararg s: Char): Parser<Char> =
 // Negation
 //
 
-fun not(p: Parser<Char>): Parser<Char> = Parser {
+fun not(p: Parser<Char>): Parser<Char> = {
     val a = p.invoke(it)
     when (a) {
         is Response.Reject<*> -> any.invoke(it)
