@@ -8,36 +8,25 @@ import lambdada.parsec.extension.stringsToString
 // Specific Char parsers
 //
 
-fun char(c: Char): Parser<Char> =
-        doTry(any satisfy { c == it })
+fun char(c: Char): Parser<Char> = TODO()
 
-fun charIn(c: CharRange): Parser<Char> =
-        doTry(any satisfy { c.contains(it) })
+fun charIn(c: CharRange): Parser<Char> = TODO()
 
-fun charIn(s: String): Parser<Char> =
-        doTry(any satisfy { it in s })
+fun charIn(s: String): Parser<Char> = TODO()
 
-fun charIn(vararg s: Char): Parser<Char> =
-        doTry(any satisfy { it in s })
+fun charIn(vararg s: Char): Parser<Char> = TODO()
 
 //
 // Negation
 //
 
-fun not(p: Parser<Char>): Parser<Char> = {
-    val a = p.invoke(it)
-    when (a) {
-        is Response.Reject<*> -> any.invoke(it)
-        is Response.Accept<*> -> fails<Char>().invoke(it)
-    }
-}
+fun not(p: Parser<Char>): Parser<Char> = TODO()
 
 //
 // Characters parser
 //
 
-fun string(s: String): Parser<String> =
-        s.fold(returns(Unit)) { a, c -> a thenLeft char(c) }.map { s }
+fun string(s: String): Parser<String> = TODO()
 
 fun delimitedString(): Parser<String> {
     val charExceptColumn = doTry(string("\\\"")) or (not(char('"')).map(Char::toString))
