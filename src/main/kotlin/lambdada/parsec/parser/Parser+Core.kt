@@ -7,21 +7,21 @@ import lambdada.parsec.parser.Response.Reject
 // Basic parsers
 //
 
-fun <A> returns(v: A): Parser<A> = { reader -> Accept(v, reader, false) }
+fun <A> returns(v: A): Parser<A> = { Accept(v, it, false) }
 
-fun <A> fails(): Parser<A> = { reader -> Reject<A>(reader.location(), false) }
+fun <A> fails(): Parser<A> = { Reject(it.location(), false) }
 
 //
 // Element parser
 //
 
-var any: Parser<Char> = { reader ->
-    when (reader.canRead()) {
+var any: Parser<Char> = {
+    when (it.canRead()) {
         true -> {
-            val a = reader.read()
+            val a = it.read()
             Accept(a.first, a.second, true)
         }
-        false -> Reject<Char>(reader.location(), false)
+        false -> Reject(it.location(), false)
     }
 }
 
@@ -29,28 +29,17 @@ var any: Parser<Char> = { reader ->
 // Lazy parser
 //
 
-fun <A> lazy(f: () -> Parser<A>): Parser<A> = { reader -> f().invoke(reader) }
+fun <A> lazy(f: () -> Parser<A>): Parser<A> = { f()(it) }
 
 //
 // Backtracking
 //
 
-fun <A> doTry(p: Parser<A>): Parser<A> = { reader ->
-    val a = p.invoke(reader)
-    when (a) {
-        is Accept -> a
-        is Reject -> Reject<A>(a.location, false)
-    }
-}
+fun <A> doTry(p: Parser<A>): Parser<A> = { p(it).fold({ it }, { Reject(it.location, false) }) }
 
 //
 // Lookahead / Breaks ll(1) limitation
 //
 
-fun <A> lookahead(p: Parser<A>): Parser<A> = { reader ->
-    val a = p.invoke(reader)
-    when (a) {
-        is Accept -> Accept(a.value, reader, false)
-        is Reject -> Reject<A>(a.location, false)
-    }
-}
+fun <A> lookahead(p: Parser<A>): Parser<A> =
+        { reader -> p(reader).fold({ Accept(it.value, reader, false) }, { Reject(it.location, false) }) }

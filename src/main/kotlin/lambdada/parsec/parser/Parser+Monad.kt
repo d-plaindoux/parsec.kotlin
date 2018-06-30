@@ -9,18 +9,12 @@ import lambdada.parsec.parser.Response.Reject
 //
 
 // p.map(...)
-infix fun <A, B> Parser<A>.map(f: (A) -> B): Parser<B> = { reader ->
-    val a = this.invoke(reader)
-    when (a) {
-        is Reject -> Reject<B>(a.location, a.consumed)
-        is Accept -> Accept(f(a.value), a.input, a.consumed)
-    }
-}
+infix fun <A, B> Parser<A>.map(f: (A) -> B): Parser<B> =
+        { this(it).fold({ Accept(f(it.value), it.input, it.consumed) }, { Reject(it.location, it.consumed) }) }
 
-fun <A> join(p: Parser<Parser<A>>): Parser<A> = { reader ->
-    val a: Response<Parser<A>> = p.invoke(reader)
+fun <A> join(p: Parser<Parser<A>>): Parser<A> = {
+    val a = p(it)
     when (a) {
-        is Reject -> Reject<A>(a.location, a.consumed)
         is Accept -> {
             val b = a.value.invoke(a.input)
             when (b) {
@@ -28,6 +22,7 @@ fun <A> join(p: Parser<Parser<A>>): Parser<A> = { reader ->
                 is Accept -> Accept(b.value, b.input, b.consumed || a.consumed)
             }
         }
+        is Reject -> Reject<A>(a.location, a.consumed)
     }
 }
 
@@ -54,11 +49,11 @@ infix fun <A> Parser<A>.satisfy(p: (A) -> Boolean): Parser<A> =
 //
 
 fun <A, B> Parser<A>.applicative(p: Parser<(A) -> B>): Parser<B> =
-        this.flatMap { v -> p.map { f -> f(v) } }
+        this flatMap { v -> p.map { f -> f(v) } }
 
 //
 // Kliesli
 //
 
 fun <A, B, C> ((A) -> Parser<B>).then(p2: (B) -> Parser<C>): (A) -> Parser<C> =
-        this pipe { b -> b.flatMap(p2) }
+        this pipe { it.flatMap(p2) }
