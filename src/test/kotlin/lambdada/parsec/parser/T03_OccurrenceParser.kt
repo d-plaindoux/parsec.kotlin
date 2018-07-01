@@ -82,7 +82,7 @@ class T03_OccurrenceParser {
     fun shouldBeAbleToParseLargeInput() {
         val parser = optRep(any) thenLeft  eos
 
-        val size = 1024
+        val size = 16 * 1024
         val content = "a".repeat(size)
 
         val result = parser.invoke(CharReader.string(content)).fold({ it.value.size }, { 0 })

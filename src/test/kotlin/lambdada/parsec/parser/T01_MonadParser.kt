@@ -10,7 +10,7 @@ class T01_MonadParser {
 
     @Test
     fun shouldMappedReturnsParserReturnsAccept() {
-        val parser : Parser<Boolean> = returns('a').map { it -> it == 'a' }
+        val parser: Parser<Boolean> = returns('a').map { it -> it == 'a' }
 
         val result = parser.invoke(givenAReader()).get()
 
@@ -67,6 +67,60 @@ class T01_MonadParser {
         val parser = returns('a').flatMap { fails<Char>() }
 
         val result = parser.invoke(givenAReader()).isSuccess()
+
+        Assert.assertEquals(result, false)
+    }
+
+    @Test
+    fun shouldApplicativeReturnsAccept() {
+        val parser = any applicative returns { it: Char -> it == 'a' }
+
+        val result = parser.invoke(givenAReader()).isSuccess()
+
+        Assert.assertEquals(result, true)
+    }
+
+    @Test
+    fun shouldApplicativeReturnsAcceptAndConsume() {
+        val parser = any applicative returns { it: Char -> it == 'a' }
+
+        val result = parser.invoke(givenAReader())
+
+        Assert.assertEquals(result.consumed, true)
+    }
+
+    @Test
+    fun shouldApplicativeReturnsReject() {
+        val parser = any applicative fails<(Char) -> Boolean>()
+
+        val result = parser.invoke(givenAReader()).isSuccess()
+
+        Assert.assertEquals(result, false)
+    }
+
+    @Test
+    fun shouldApplicativeReturnsRejectAndConsume() {
+        val parser = any applicative fails<(Char) -> Boolean>()
+
+        val result = parser.invoke(givenAReader())
+
+        Assert.assertEquals(result.consumed, true)
+    }
+
+    @Test
+    fun shouldThenReturnsAccept() {
+        val parser = { a: Char -> any satisfy { it == a } }
+
+        val result = (parser then parser)('a')(CharReader.string("aa")).isSuccess()
+
+        Assert.assertEquals(result, true)
+    }
+
+    @Test
+    fun shouldThenReturnsReject() {
+        val parser = { a: Char -> any satisfy { it == a } }
+
+        val result = (parser then parser)('a')(CharReader.string("ab")).isSuccess()
 
         Assert.assertEquals(result, false)
     }

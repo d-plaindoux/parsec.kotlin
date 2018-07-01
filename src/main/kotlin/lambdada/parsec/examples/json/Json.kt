@@ -34,15 +34,6 @@ object JSonParser {
     private val JSON_OBJECT: Parser<JSon> =
             structure(JSON_ATTRIBUTE, '{', ',', '}') map { JSonObject(it.orEmpty().toMap()) }
 
-    val JSON_ND: Parser<JSon> =
-            JSON_NULL or
-            JSON_TRUE or
-            JSON_FALSE or
-            JSON_INT or
-            JSON_STRING or
-            JSON_ARRAY or
-            JSON_OBJECT
-
     val JSON: Parser<JSon> =
             lookahead(any).flatMap {
                 when (it) {

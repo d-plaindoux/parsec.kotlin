@@ -41,7 +41,7 @@ fun delimitedString(): Parser<String> {
 private val STRING_NUMBER: Parser<List<Char>> = rep(charIn('0'..'9'))
 
 private val STRING_INTEGER: Parser<List<Char>> =
-        (opt(charIn("-+")).map { it ?: '+' } then STRING_NUMBER).map { listOf(it.first) + it.second }
+        opt(charIn("-+")) map { it ?: '+' } then STRING_NUMBER map { listOf(it.first) + it.second }
 
 val INTEGER: Parser<Int> = STRING_INTEGER.map { it.charsToInt() }
 

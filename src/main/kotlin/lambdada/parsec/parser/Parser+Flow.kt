@@ -49,10 +49,16 @@ private tailrec fun <A> optRep(p: Parser<A>, acc: List<A>, consumed: Boolean, ch
 
 fun <A> optRep(p: Parser<A>): Parser<List<A>> = { optRep(p, listOf(), false, it) }
 
-fun <A> rep(p: Parser<A>): Parser<List<A>> = p then optRep(p) map { r -> listOf(r.first) + r.second }
+fun <A> rep(p: Parser<A>): Parser<List<A>> = p then optRep(p) map { listOf(it.first) + it.second }
 
 //
 // End of stream
 //
 
-var eos: Parser<Unit> = any thenRight fails<Unit>() or returns(Unit)
+var eos: Parser<Unit> = {
+    if (it.canRead()) {
+        Reject<Unit>(it.location(), false)
+    } else {
+        Accept(Unit, it, false)
+    }
+}
