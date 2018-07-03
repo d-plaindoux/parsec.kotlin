@@ -62,9 +62,8 @@ fun <I, A> rep(p: Parser<I, A>): Parser<I, List<A>> = p then optRep(p) map { lis
 //
 
 fun <A> eos(): Parser<A, Unit> = {
-    if (it.canRead()) {
-        Reject(it.location(), false)
-    } else {
-        Accept(Unit, it, false)
+    when (it.read()) {
+        null -> Accept(Unit, it, false)
+        else -> Reject(it.location(), false)
     }
 }

@@ -19,7 +19,7 @@ class T02_FlowParser {
 
     @Test
     fun shouldSequenceParserReturnsReject() {
-        val parser = any then fails<Char, Unit>()
+        val parser = any<Char>() then fails<Char, Unit>()
 
         val result = parser.invoke(givenAReader()).fold({ false }, { true })
 

@@ -6,15 +6,13 @@ import java.net.URL
 interface Reader<A> {
 
     fun location(): Location
-    fun canRead(): Boolean
-    fun read(): Pair<A, Reader<A>>
+    fun read(): Pair<A, Reader<A>>?
 
     // CharReader using a list of characters
     private class FromList(private val source: List<Char>,
                            private val position: Int) : Reader<Char> {
         override fun location() = Location(position)
-        override fun canRead() = position < source.count()
-        override fun read() = source[position] to FromList(source, position + 1)
+        override fun read() = source.getOrNull(position)?.let { it to FromList(source, position + 1) }
     }
 
     // Companion object

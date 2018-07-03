@@ -35,7 +35,7 @@ object JSonParser {
             structure(JSON_ATTRIBUTE, '{', ',', '}') map { JSonObject(it.orEmpty().toMap()) }
 
     val JSON: Parser<Char, JSon> =
-            lookahead(any).flatMap {
+            lookahead(any<Char>()).flatMap {
                 when (it) {
                     'n' -> JSON_NULL
                     't' -> JSON_TRUE

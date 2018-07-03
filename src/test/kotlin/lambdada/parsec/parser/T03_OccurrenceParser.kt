@@ -8,7 +8,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldOptionalParserWithEmptyStringReturnsAccept() {
-        val parser = opt(any) then eos()
+        val parser = opt(any<Char>()) then eos()
 
         val result = parser.invoke(Reader.string("")).fold({ it.value.first == null }, { false })
 
@@ -17,7 +17,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldOptionalParserWithNonEmptyStringReturnsAccept() {
-        val parser = opt(any) then eos()
+        val parser = opt(any<Char>()) then eos()
 
         val result = parser.invoke(Reader.string("a")).fold({ it.value.first == 'a' }, { false })
 
@@ -26,7 +26,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldOptionalRepeatableParserWithEmptyStringReturnsAccept() {
-        val parser = optRep(any) then eos()
+        val parser = optRep(any<Char>()) then eos()
 
         val result = parser.invoke(Reader.string("")).fold({ true }, { false })
 
@@ -35,7 +35,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldOptionalRepeatableParserWithNonEmptyStringReturnsAccept() {
-        val parser = optRep(any) then eos()
+        val parser = optRep(any<Char>()) then eos()
 
         val result = parser.invoke(Reader.string("ab")).fold({ it.value.first == listOf('a', 'b') }, { false })
 
@@ -44,7 +44,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldRepeatableParserWithEmptyStringReturnsReject() {
-        val parser = rep(any) then eos()
+        val parser = rep(any<Char>()) then eos()
 
         val result = parser.invoke(Reader.string("")).fold({ false }, { true })
 
@@ -53,7 +53,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldRepeatableParserWithNonEmptyStringReturnsAccept() {
-        val parser = rep(any) then eos()
+        val parser = rep(any<Char>()) then eos()
 
         val result = parser.invoke(Reader.string("ab")).fold({ it.value.first == listOf('a', 'b') }, { false })
 
@@ -80,7 +80,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldBeAbleToParseLargeInput() {
-        val parser = optRep(any) thenLeft  eos()
+        val parser = optRep(any<Char>()) thenLeft eos()
 
         val size = 16 * 1024
         val content = "a".repeat(size)

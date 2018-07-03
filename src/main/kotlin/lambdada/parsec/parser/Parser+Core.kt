@@ -15,14 +15,20 @@ fun <I, A> fails(): Parser<I, A> = { Reject(it.location(), false) }
 // Element parser
 //
 
-var any: Parser<Char, Char> = {
-    when (it.canRead()) {
-        true -> {
-            val a = it.read()
-            Accept(a.first, a.second, true)
-        }
-        false -> Reject(it.location(), false)
+fun <I> any(): Parser<I, I> = {
+    val a = it.read()
+    when (a) {
+        null -> Reject(it.location(), false)
+        else -> Accept(a.first, a.second, true)
     }
+}
+
+//
+// Negation
+//
+
+fun <I> not(p: Parser<I, I>): Parser<I, I> = { reader ->
+    p(reader).fold({ fails<I, I>()(reader) }, { any<I>()(reader) })
 }
 
 //

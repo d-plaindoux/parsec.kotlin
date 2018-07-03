@@ -19,7 +19,7 @@ class T01_MonadParser {
 
     @Test
     fun shouldJoinReturnedReturns() {
-        val parser = join(returns(any))
+        val parser = join(returns(any<Char>()))
 
         val result = parser.invoke(givenAReader()).get()
 
@@ -28,7 +28,7 @@ class T01_MonadParser {
 
     @Test
     fun shouldJoinReturnedReturnsWithConsumed() {
-        val parser = join(returns(any))
+        val parser = join(returns(any<Char>()))
 
         val result = parser.invoke(givenAReader())
 
@@ -46,7 +46,7 @@ class T01_MonadParser {
 
     @Test
     fun shouldFlapMappedReturnsParserReturnsAccept() {
-        val parser = any.flatMap { returns<Char, String>(it + "b") }.map { it == "ab" }
+        val parser = any<Char>().flatMap { returns<Char, String>(it + "b") }.map { it == "ab" }
 
         val result = parser.invoke(givenAReader()).get()
 
@@ -55,7 +55,7 @@ class T01_MonadParser {
 
     @Test
     fun shouldFlapMappedReturnsParserReturnsConsumed() {
-        val parser = any.flatMap { returns<Char, String>(it + "b") }.map { it == "ab" }
+        val parser = any<Char>().flatMap { returns<Char, String>(it + "b") }.map { it == "ab" }
 
         val result = parser.invoke(givenAReader())
 
@@ -73,7 +73,7 @@ class T01_MonadParser {
 
     @Test
     fun shouldApplicativeReturnsAccept() {
-        val parser = any applicative returns { it: Char -> it == 'a' }
+        val parser = any<Char>() applicative returns { it: Char -> it == 'a' }
 
         val result = parser.invoke(givenAReader()).isSuccess()
 
@@ -82,7 +82,7 @@ class T01_MonadParser {
 
     @Test
     fun shouldApplicativeReturnsAcceptAndConsume() {
-        val parser = any applicative returns { it: Char -> it == 'a' }
+        val parser = any<Char>() applicative returns { it: Char -> it == 'a' }
 
         val result = parser.invoke(givenAReader())
 
@@ -91,7 +91,7 @@ class T01_MonadParser {
 
     @Test
     fun shouldApplicativeReturnsReject() {
-        val parser = any applicative fails<Char, (Char) -> Boolean>()
+        val parser = any<Char>() applicative fails<Char, (Char) -> Boolean>()
 
         val result = parser.invoke(givenAReader()).isSuccess()
 
@@ -100,7 +100,7 @@ class T01_MonadParser {
 
     @Test
     fun shouldApplicativeReturnsRejectAndConsume() {
-        val parser = any applicative fails<Char, (Char) -> Boolean>()
+        val parser = any<Char>() applicative fails<Char, (Char) -> Boolean>()
 
         val result = parser.invoke(givenAReader())
 
@@ -109,7 +109,7 @@ class T01_MonadParser {
 
     @Test
     fun shouldThenReturnsAccept() {
-        val parser = { a: Char -> any satisfy { it == a } }
+        val parser = { a: Char -> any<Char>() satisfy { it == a } }
 
         val result = (parser then parser)('a')(Reader.string("aa")).isSuccess()
 
@@ -118,7 +118,7 @@ class T01_MonadParser {
 
     @Test
     fun shouldThenReturnsReject() {
-        val parser = { a: Char -> any satisfy { it == a } }
+        val parser = { a: Char -> any<Char>() satisfy { it == a } }
 
         val result = (parser then parser)('a')(Reader.string("ab")).isSuccess()
 

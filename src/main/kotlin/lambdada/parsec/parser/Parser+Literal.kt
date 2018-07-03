@@ -8,19 +8,13 @@ import lambdada.parsec.extension.stringsToString
 // Specific Char parsers
 //
 
-fun char(c: Char): Parser<Char, Char> = doTry(any satisfy { c == it })
+fun char(c: Char): Parser<Char, Char> = doTry(any<Char>() satisfy { c == it })
 
-fun charIn(c: CharRange): Parser<Char, Char> = doTry(any satisfy { c.contains(it) })
+fun charIn(c: CharRange): Parser<Char, Char> = doTry(any<Char>() satisfy { c.contains(it) })
 
-fun charIn(s: String): Parser<Char, Char> = doTry(any satisfy { it in s })
+fun charIn(s: String): Parser<Char, Char> = doTry(any<Char>() satisfy { it in s })
 
-fun charIn(vararg s: Char): Parser<Char, Char> = doTry(any satisfy { it in s })
-
-//
-// Negation
-//
-
-fun not(p: Parser<Char, Char>): Parser<Char, Char> = { reader -> p(reader).fold({ fails<Char, Char>()(reader) }, { any(reader) }) }
+fun charIn(vararg s: Char): Parser<Char, Char> = doTry(any<Char>() satisfy { it in s })
 
 //
 // Characters parser

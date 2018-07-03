@@ -56,3 +56,4 @@ infix fun <I, A, B> Parser<I, A>.applicative(p: Parser<I, (A) -> B>): Parser<I, 
 
 infix fun <I, A, B, C> ((A) -> Parser<I, B>).then(p2: (B) -> Parser<I, C>): (A) -> Parser<I, C> =
         this pipe { it flatMap p2 }
+
