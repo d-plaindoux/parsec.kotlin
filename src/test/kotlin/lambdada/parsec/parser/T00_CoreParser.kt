@@ -1,16 +1,16 @@
 package lambdada.parsec.parser
 
-import lambdada.parsec.io.CharReader
+import lambdada.parsec.io.Reader
 import org.junit.Assert
 import org.junit.Test
 
 class T00_CoreParser {
 
-    private fun <A> Response<A>.get(): A? = this.fold({ it.value }, { null })
+    private fun <A> Response<*, A>.get(): A? = this.fold({ it.value }, { null })
 
     @Test
     fun shouldReturnsParserReturnsAccept() {
-        val parser : Parser<Boolean> = returns(true)
+        val parser: Parser<Char, Boolean> = returns(true)
 
         val result = parser.invoke(givenAReader()).isSuccess()
 
@@ -19,7 +19,7 @@ class T00_CoreParser {
 
     @Test
     fun shouldFailsParserReturnsError() {
-        val parser = fails<Char>()
+        val parser = fails<Char, Char>()
 
         val result = parser.invoke(givenAReader()).isSuccess()
 
@@ -28,7 +28,7 @@ class T00_CoreParser {
 
     @Test
     fun shouldLazyReturnsParserReturnsAccept() {
-        val parser = lazy { returns('a') }
+        val parser = lazy { returns<Char, Char>('a') }
 
         val result = parser.invoke(givenAReader()).get()
 
@@ -37,13 +37,13 @@ class T00_CoreParser {
 
     @Test
     fun shouldLazyFailsParserReturnsError() {
-        val parser = lazy { fails<Char>() }
+        val parser = lazy { fails<Char, Char>() }
 
         val result = parser.invoke(givenAReader()).fold({ false }, { true })
 
         Assert.assertEquals(result, true)
     }
 
-    private fun givenAReader() = CharReader.string("")
+    private fun givenAReader() = Reader.string("")
 
 }

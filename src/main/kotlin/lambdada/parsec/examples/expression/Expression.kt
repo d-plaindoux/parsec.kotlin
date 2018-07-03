@@ -1,6 +1,6 @@
 package lambdada.parsec.examples.expression
 
-import lambdada.parsec.io.CharReader
+import lambdada.parsec.io.Reader
 import lambdada.parsec.io.skip
 import lambdada.parsec.parser.*
 
@@ -14,15 +14,15 @@ object ExpressionParser {
         }
     }
 
-    private fun SEXPR(): Parser<Float> =
+    private fun SEXPR(): Parser<Char, Float> =
             FLOAT or (char('(') thenRight lazy { EXPR() } thenLeft char(')'))
 
-    fun EXPR(): Parser<Float> =
-            lazy { SEXPR() then opt(charIn('+','*') then EXPR()) }.map { p ->
+    fun EXPR(): Parser<Char, Float> =
+            lazy { SEXPR() then opt(charIn('+', '*') then EXPR()) }.map { p ->
                 p.second?.let { operation(it.first)(p.first, it.second) } ?: p.first
             }
 
-    fun reader(r: CharReader): CharReader = r skip rep(charIn("\r\n\t "))
+    fun reader(r: Reader<Char>): Reader<Char> = r skip rep(charIn("\r\n\t "))
 
 }
 

@@ -1,5 +1,5 @@
 package lambdada.parsec.parser
 
-import lambdada.parsec.io.CharReader
+import lambdada.parsec.io.Reader
 
-typealias Parser<A> = (CharReader) -> Response<A>
+typealias Parser<I, A> = (Reader<I>) -> Response<I, A>

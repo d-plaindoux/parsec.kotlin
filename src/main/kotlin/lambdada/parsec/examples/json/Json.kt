@@ -1,40 +1,40 @@
 package lambdada.parsec.examples.json
 
-import lambdada.parsec.io.CharReader
+import lambdada.parsec.io.Reader
 import lambdada.parsec.io.skip
 import lambdada.parsec.parser.*
 
 
 object JSonParser {
 
-    private val JSON_NULL: Parser<JSon> =
+    private val JSON_NULL: Parser<Char, JSon> =
             string("null") map { JSonNull }
 
-    private val JSON_TRUE: Parser<JSon> =
+    private val JSON_TRUE: Parser<Char, JSon> =
             string("true") map { JSonBoolean(true) }
 
-    private val JSON_FALSE: Parser<JSon> =
+    private val JSON_FALSE: Parser<Char, JSon> =
             string("false") map { JSonBoolean(false) }
 
-    private val JSON_INT: Parser<JSon> =
+    private val JSON_INT: Parser<Char, JSon> =
             FLOAT map { JSonNumber(it) }
 
-    private val JSON_STRING: Parser<JSon> =
+    private val JSON_STRING: Parser<Char, JSon> =
             delimitedString() map { JSonString(it) }
 
-    private fun <A> structure(p: Parser<A>, o: Char, s: Char, c: Char): Parser<List<A>?> =
+    private fun <A> structure(p: Parser<Char, A>, o: Char, s: Char, c: Char): Parser<Char, List<A>?> =
             char(o) thenRight opt(p then optRep(char(s) thenRight p) thenLeft char(c) map { (s, l) -> listOf(s) + l })
 
-    private val JSON_ARRAY: Parser<JSon> =
+    private val JSON_ARRAY: Parser<Char, JSon> =
             structure(lazy { JSON }, '[', ',', ']') map { JSonArray(it.orEmpty()) }
 
-    private val JSON_ATTRIBUTE: Parser<Pair<String, JSon>> =
+    private val JSON_ATTRIBUTE: Parser<Char, Pair<String, JSon>> =
             delimitedString() thenLeft char(':') then lazy { JSON }
 
-    private val JSON_OBJECT: Parser<JSon> =
+    private val JSON_OBJECT: Parser<Char, JSon> =
             structure(JSON_ATTRIBUTE, '{', ',', '}') map { JSonObject(it.orEmpty().toMap()) }
 
-    val JSON: Parser<JSon> =
+    val JSON: Parser<Char, JSon> =
             lookahead(any).flatMap {
                 when (it) {
                     'n' -> JSON_NULL
@@ -47,6 +47,6 @@ object JSonParser {
                 }
             }
 
-    fun reader(r: CharReader): CharReader = r skip rep(charIn("\r\n\t "))
+    fun reader(r: Reader<Char>): Reader<Char> = r skip rep(charIn("\r\n\t "))
 
 }
