@@ -16,11 +16,7 @@ fun <I, A> fails(): Parser<I, A> = { Reject(it.location(), false) }
 //
 
 fun <I> any(): Parser<I, I> = {
-    val a = it.read()
-    when (a) {
-        null -> Reject(it.location(), false)
-        else -> Accept(a.first, a.second, true)
-    }
+    it.read()?.let { Accept(it.first, it.second, true) } ?: Reject(it.location(), false)
 }
 
 //
@@ -28,7 +24,7 @@ fun <I> any(): Parser<I, I> = {
 //
 
 fun <I> not(p: Parser<I, I>): Parser<I, I> = { reader ->
-    p(reader).fold({ fails<I, I>()(reader) }, { any<I>()(reader) })
+    p(reader).fold({ Reject(reader.location(), false) }, { any<I>()(reader) })
 }
 
 //

@@ -44,10 +44,10 @@ fun <I, A> opt(p: Parser<I, A>): Parser<I, A?> = p map { it as A? } or returns<I
 
 fun <I, A> optRep(p: Parser<I, A>): Parser<I, List<A>> = {
     // Fold not used / tailrec should be validated if terminal recursion can be detected only
-    tailrec fun <A> occurrences(p: Parser<I, A>, acc: List<A>, consumed: Boolean, charReader: Reader<I>): Response<I, List<A>> {
-        val a = p(charReader)
+    tailrec fun <A> occurrences(p: Parser<I, A>, acc: List<A>, consumed: Boolean, reader: Reader<I>): Response<I, List<A>> {
+        val a = p(reader)
         return when (a) {
-            is Reject -> Accept(acc, charReader, consumed)
+            is Reject -> Accept(acc, reader, consumed)
             is Accept -> occurrences(p, acc + a.value, consumed || a.consumed, a.input)
         }
     }

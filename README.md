@@ -3,12 +3,29 @@
 [![Build Status](https://travis-ci.org/d-plaindoux/parsec.kotlin.svg?branch=master)](https://travis-ci.org/d-plaindoux/parsec.kotlin)
 [![experimental](http://badges.github.io/stability-badges/dist/experimental.svg)](http://github.com/badges/stability-badges)
 
-Material done for a [Lambdada](http://lambdada.org) session.
-
 # Objective 
 
 A [parser combinator library](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper-letter.pdf)
 implementation from scratch in [Kotlin](https://kotlinlang.org).
+
+# Examples
+
+```kotlin
+// SEXPR ::= '(' EXPR ')' | FLOAT
+// EXPR  ::= SEPXR [('+'|'*') EXPR]
+
+fun SEXPR() =
+    char('(') then lazy { EXPR() } then char(')') or FLOAT
+
+fun EXPR() =
+    lazy { SEXPR() then opt(charIn('+', '*') then EXPR()) }
+```
+
+# Why this library
+
+This material has been designed for a [Lambdada](http://lambdada.org) 
+session in order to explore the Kotlin language implementing a library
+with intensive function composition.  
 
 # License
 
