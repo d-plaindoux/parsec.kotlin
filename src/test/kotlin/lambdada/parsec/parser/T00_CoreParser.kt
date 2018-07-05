@@ -44,6 +44,33 @@ class T00_CoreParser {
         Assert.assertEquals(result, true)
     }
 
-    private fun givenAReader() = Reader.string("")
+    @Test
+    fun shouldAnyReturnsSuccess() {
+        val parser = any<Char>()
+
+        val result = parser.invoke(givenAReader("a")).fold({ true }, { false })
+
+        Assert.assertEquals(result, true)
+    }
+
+    @Test
+    fun shouldAnyReturnsReject() {
+        val parser = any<Char>()
+
+        val result = parser.invoke(givenAReader()).fold({ false }, { true })
+
+        Assert.assertEquals(result, true)
+    }
+
+    @Test
+    fun shouldNotReturnsReject() {
+        val parser = not(any<Char>())
+
+        val result = parser.invoke(givenAReader("a")).fold({ false }, { true })
+
+        Assert.assertEquals(result, true)
+    }
+
+    private fun givenAReader(s:String = "") = Reader.string(s)
 
 }
