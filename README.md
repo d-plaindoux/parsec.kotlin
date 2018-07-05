@@ -10,6 +10,18 @@ implementation from scratch in [Kotlin](https://kotlinlang.org).
 
 # Examples
 
+## CSV
+
+```kotlin
+// item    ::= [^,]*
+// csvline ::= item (',' item)*
+
+var item     = optrep(not(char(','))) 
+val csvline  = item then optrep(char(',') then item)
+```
+
+## Expressions
+
 ```kotlin
 // SEXPR ::= '(' EXPR ')' | FLOAT
 // EXPR  ::= SEPXR [('+'|'*') EXPR]
