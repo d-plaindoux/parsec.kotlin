@@ -4,21 +4,25 @@ import lambdada.parsec.io.Reader
 import lambdada.parsec.io.skip
 import lambdada.parsec.parser.*
 
+sealed class Operator
+object Plus : Operator()
+object Mult : Operator()
+
 object ExpressionParser {
 
-    // Missing dependant types !
-    private fun operation(c: Char): (Float, Float) -> Float = { p1, p2 ->
-        when (c) {
-            '*' -> p1 * p2
-            else -> p1 + p2
-        }
-    }
+    private fun operation(c: Operator): (Float, Float) -> Float =
+            when (c) {
+                is Plus -> { p1, p2 -> p1 + p2 }
+                is Mult -> { p1, p2 -> p1 * p2 }
+            }
 
-    private fun SEXPR(): Parser<Char, Float> =
+    fun SEXPR(): Parser<Char, Float> =
             FLOAT or (char('(') thenRight lazy { EXPR() } thenLeft char(')'))
 
+    val OP = (char('+') map { Plus as Operator }) or (char('*') map { Mult as Operator })
+
     fun EXPR(): Parser<Char, Float> =
-            lazy { SEXPR() then opt(charIn('+', '*') then EXPR()) }.map { p ->
+            lazy { SEXPR() then opt(OP then EXPR()) } map { p ->
                 p.second?.let { operation(it.first)(p.first, it.second) } ?: p.first
             }
 

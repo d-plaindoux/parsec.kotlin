@@ -23,7 +23,7 @@ fun <I> any(): Parser<I, I> = {
 // Negation
 //
 
-fun <I> not(p: Parser<I, I>): Parser<I, I> = { reader ->
+fun <I> not(p: Parser<I, *>): Parser<I, I> = { reader ->
     p(reader).fold({ Reject(reader.location(), false) }, { any<I>()(reader) })
 }
 

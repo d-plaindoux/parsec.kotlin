@@ -8,19 +8,20 @@ import lambdada.parsec.extension.stringsToString
 // Specific Char parsers
 //
 
-fun char(c: Char): Parser<Char, Char> = doTry(any<Char>() satisfy { c == it })
-
 fun charIn(c: CharRange): Parser<Char, Char> = doTry(any<Char>() satisfy { c.contains(it) })
 
 fun charIn(s: String): Parser<Char, Char> = doTry(any<Char>() satisfy { it in s })
 
 fun charIn(vararg s: Char): Parser<Char, Char> = doTry(any<Char>() satisfy { it in s })
 
+fun char(c: Char): Parser<Char, Char> = charIn(c)
+
 //
 // Characters parser
 //
 
-fun string(s: String): Parser<Char, String> = s.fold(returns<Char, Unit>(Unit)) { a, c -> a thenLeft char(c) } map { s }
+fun string(s: String): Parser<Char, String> =
+        s.fold(returns<Char, Unit>(Unit)) { a, c -> a thenLeft char(c) } map { s }
 
 fun delimitedString(): Parser<Char, String> = char('"') thenRight
         optRep(doTry(string("\\\"")) or (not(char('"')).map(Char::toString))) thenLeft
