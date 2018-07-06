@@ -27,7 +27,7 @@ val csvline  = item then optrep(char(',') then item)
 // EXPR  ::= SEPXR (('+'|'*') EXPR)?
 
 fun SEXPR() =
-    char('(') then lazy { EXPR() } then char(')') or FLOAT
+    lazy { char('(') then EXPR() then char(')') or FLOAT }
 
 fun EXPR() =
     lazy { SEXPR() then opt(charIn('+', '*') then EXPR()) }
