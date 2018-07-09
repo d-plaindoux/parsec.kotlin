@@ -8,7 +8,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldOptionalParserWithEmptyStringReturnsAccept() {
-        val parser = opt(any<Char>()) then eos()
+        val parser = any<Char>().opt then eos()
 
         val result = parser.invoke(Reader.string("")).fold({ it.value.first == null }, { false })
 
@@ -17,7 +17,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldOptionalParserWithNonEmptyStringReturnsAccept() {
-        val parser = opt(any<Char>()) then eos()
+        val parser = any<Char>().opt then eos()
 
         val result = parser.invoke(Reader.string("a")).fold({ it.value.first == 'a' }, { false })
 
@@ -26,7 +26,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldOptionalRepeatableParserWithEmptyStringReturnsAccept() {
-        val parser = optRep(any<Char>()) then eos()
+        val parser = any<Char>().optRep then eos()
 
         val result = parser.invoke(Reader.string("")).fold({ true }, { false })
 
@@ -35,7 +35,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldOptionalRepeatableParserWithNonEmptyStringReturnsAccept() {
-        val parser = optRep(any<Char>()) then eos()
+        val parser = any<Char>().optRep then eos()
 
         val result = parser.invoke(Reader.string("ab")).fold({ it.value.first == listOf('a', 'b') }, { false })
 
@@ -44,7 +44,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldRepeatableParserWithEmptyStringReturnsReject() {
-        val parser = rep(any<Char>()) then eos()
+        val parser = any<Char>().rep then eos()
 
         val result = parser.invoke(Reader.string("")).fold({ false }, { true })
 
@@ -53,7 +53,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldRepeatableParserWithNonEmptyStringReturnsAccept() {
-        val parser = rep(any<Char>()) then eos()
+        val parser = any<Char>().rep then eos()
 
         val result = parser.invoke(Reader.string("ab")).fold({ it.value.first == listOf('a', 'b') }, { false })
 
@@ -62,7 +62,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldRepeatableNotParserWithNonEmptyStringReturnsAccept() {
-        val parser = rep(not(char('a'))) then eos()
+        val parser = not(char('a')).rep then eos()
 
         val result = parser.invoke(Reader.string("bc")).fold({ it.value.first == listOf('b', 'c') }, { false })
 
@@ -71,7 +71,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldRepeatableNotThenCharParserWithNonEmptyStringReturnsAccept() {
-        val parser = optRep(not(char('a')))
+        val parser = not(char('a')).optRep
 
         val result = parser.invoke(Reader.string("bca")).fold({ it.value == listOf('b', 'c') }, { false })
 
@@ -80,7 +80,7 @@ class T03_OccurrenceParser {
 
     @Test
     fun shouldBeAbleToParseLargeInput() {
-        val parser = optRep(any<Char>()) thenLeft eos()
+        val parser = any<Char>().optRep thenLeft eos()
 
         val size = 16 * 1024
         val content = "a".repeat(size)

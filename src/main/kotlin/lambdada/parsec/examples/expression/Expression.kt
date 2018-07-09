@@ -22,11 +22,11 @@ object ExpressionParser {
     val OP = (char('+') map { Plus as Operator }) or (char('*') map { Mult as Operator })
 
     fun EXPR(): Parser<Char, Float> =
-            lazy { SEXPR() then opt(OP then EXPR()) } map { p ->
+            lazy { SEXPR() then (OP then EXPR()).opt } map { p ->
                 p.second?.let { operation(it.first)(p.first, it.second) } ?: p.first
             }
 
-    fun reader(r: Reader<Char>): Reader<Char> = r skip rep(charIn("\r\n\t "))
+    fun reader(r: Reader<Char>): Reader<Char> = r skip charIn("\r\n\t ").rep
 
 }
 

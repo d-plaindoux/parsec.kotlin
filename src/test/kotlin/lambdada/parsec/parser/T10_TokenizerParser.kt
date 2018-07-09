@@ -11,10 +11,10 @@ class T10_TokenizerParser {
 
     @Test
     fun shouldCountNumber() {
-        val tokenizer = INTEGER thenLeft opt(char(','))
+        val tokenizer = INTEGER thenLeft char(',').opt
         val reader = Reader.string("42,43").tokenize(tokenizer)
 
-        val parser = rep(any<Int>()) thenLeft eos()
+        val parser = any<Int>().rep thenLeft eos()
 
         Assert.assertEquals(2, parser(reader).get()?.size ?: -1)
     }

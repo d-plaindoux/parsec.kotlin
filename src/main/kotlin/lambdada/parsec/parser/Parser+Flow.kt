@@ -38,24 +38,21 @@ infix fun <I, A> Parser<I, A>.or(p: Parser<I, A>): Parser<I, A> = { reader ->
 // Kleene operator, optional
 //
 
-fun <I, A> opt(p: Parser<I, A>): Parser<I, A?> = p map { it as A? } or returns<I, A?>(null)
+val <I, A> Parser<I, A>.opt: Parser<I, A?> get() = this map { it as A? } or returns<I, A?>(null)
 
 // NOTE: Greedy parsers | Prefix i.e. Function vs. Method
 
-fun <I, A> optRep(p: Parser<I, A>): Parser<I, List<A>> = {
-    // Fold not used / tailrec should be validated if terminal recursion can be detected only
-    tailrec fun <A> occurrences(p: Parser<I, A>, acc: List<A>, consumed: Boolean, reader: Reader<I>): Response<I, List<A>> {
-        val a = p(reader)
-        return when (a) {
-            is Reject -> Accept(acc, reader, consumed)
-            is Accept -> occurrences(p, acc + a.value, consumed || a.consumed, a.input)
-        }
+tailrec fun <I, A> occurrences(p: Parser<I, A>, acc: List<A>, consumed: Boolean, reader: Reader<I>): Response<I, List<A>> {
+    val a = p(reader)
+    return when (a) {
+        is Reject -> Accept(acc, reader, consumed)
+        is Accept -> occurrences(p, acc + a.value, consumed || a.consumed, a.input)
     }
-
-    occurrences(p, listOf(), false, it)
 }
 
-fun <I, A> rep(p: Parser<I, A>): Parser<I, List<A>> = p then optRep(p) map { listOf(it.first) + it.second }
+val <I, A> Parser<I, A>.optRep: Parser<I, List<A>> get() = { occurrences(this, listOf(), false, it) }
+
+val <I, A> Parser<I, A>.rep: Parser<I, List<A>> get() = this then this.optRep map { listOf(it.first) + it.second }
 
 //
 // End of stream
