@@ -7,9 +7,13 @@ import lambdada.parsec.parser.Response.Reject
 // Basic parsers
 //
 
-fun <I, A> returns(v: A): Parser<I, A> = { Accept(v, it, false) }
+fun <I, A> returns(v: A): Parser<I, A> = {
+    Accept(v, it, false)
+}
 
-fun <I, A> fails(): Parser<I, A> = { Reject(it.location(), false) }
+fun <I, A> fails(): Parser<I, A> = {
+    Reject(it.location(), false)
+}
 
 //
 // Element parser
@@ -43,5 +47,6 @@ fun <I, A> doTry(p: Parser<I, A>): Parser<I, A> = { p(it).fold({ it }, { Reject(
 // Lookahead / Breaks ll(1) limitation
 //
 
-fun <I, A> lookahead(p: Parser<I, A>): Parser<I, A> =
-        { reader -> p(reader).fold({ Accept(it.value, reader, false) }, { Reject(it.location, false) }) }
+fun <I, A> lookahead(p: Parser<I, A>): Parser<I, A> = { reader ->
+    p(reader).fold({ Accept(it.value, reader, false) }, { Reject(it.location, false) })
+}
