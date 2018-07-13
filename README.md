@@ -30,7 +30,7 @@ fun SEXPR() =
     lazy { char('(') then EXPR() then char(')') or FLOAT }
 
 fun EXPR() =
-    lazy { SEXPR() then opt(charIn('+', '*') then EXPR()) }
+    lazy { SEXPR() then (charIn('+', '*') then EXPR()).opt }
 ```
 
 # Why this library
