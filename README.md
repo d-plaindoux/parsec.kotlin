@@ -16,8 +16,8 @@ implementation from scratch in [Kotlin](https://kotlinlang.org).
 // item    ::= [^,]*
 // csvline ::= item (',' item)*
 
-var item     = optrep(not(char(','))) 
-val csvline  = item then optrep(char(',') then item)
+var item     = not(char(',')).optrep
+val csvline  = item then (char(',') then item).optrep
 ```
 
 ## Expressions
