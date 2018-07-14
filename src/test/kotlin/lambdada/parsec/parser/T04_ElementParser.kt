@@ -53,7 +53,7 @@ class T04_ElementParser {
 
     @Test
     fun shouldChoiceWithBacktrackParserReturnsAccept() {
-        val parser = (doTry((any<Char>() then any()).map { it.first }) or any()) then eos()
+        val parser = (`try`((any<Char>() then any()).map { it.first }) or any()) then eos()
 
         val result = parser.invoke(Reader.string("a")).fold({ true }, { false })
 
@@ -71,7 +71,7 @@ class T04_ElementParser {
 
     @Test
     fun shouldNotSatisfyOrAnyParserReturnsAccept() {
-        val parser = doTry(any<Char>().satisfy { it == 'a' }) or any()
+        val parser = `try`(any<Char>().satisfy { it == 'a' }) or any()
 
         val result = parser.invoke(Reader.string("b")).fold({ it.value == 'b' && it.consumed }, { false })
 

@@ -19,3 +19,13 @@ class T00_Extensions {
         Assert.assertEquals(listOf('-', '4', '2').charsToInt(), -42)
     }
 }
+
+interface HKT<F,A>
+
+interface Functor<F> {
+    fun <A,B> lift(f: (A) -> B): (HKT<F,A>) -> HKT<F,B> =
+            { it.fmap(f) }
+
+    fun <A,B> HKT<F,A>.fmap(f: (A) -> B): HKT<F,B>
+}
+

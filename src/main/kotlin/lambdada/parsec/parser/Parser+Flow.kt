@@ -50,9 +50,9 @@ tailrec fun <I, A> occurrences(p: Parser<I, A>, acc: List<A>, consumed: Boolean,
     }
 }
 
-val <I, A> Parser<I, A>.optRep: Parser<I, List<A>> get() = { occurrences(this, listOf(), false, it) }
+val <I, A> Parser<I, A>.optrep: Parser<I, List<A>> get() = { occurrences(this, listOf(), false, it) }
 
-val <I, A> Parser<I, A>.rep: Parser<I, List<A>> get() = this then this.optRep map { listOf(it.first) + it.second }
+val <I, A> Parser<I, A>.rep: Parser<I, List<A>> get() = this then this.optrep map { listOf(it.first) + it.second }
 
 //
 // End of stream

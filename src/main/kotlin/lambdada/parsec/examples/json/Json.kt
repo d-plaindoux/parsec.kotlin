@@ -23,7 +23,7 @@ object JSonParser {
             delimitedString() map { JSonString(it) }
 
     private fun <A> structure(p: Parser<Char, A>, o: Char, s: Char, c: Char): Parser<Char, List<A>?> =
-            char(o) thenRight (p then (char(s) thenRight p).optRep thenLeft char(c) map { (s, l) -> listOf(s) + l }).opt
+            char(o) thenRight (p then (char(s) thenRight p).optrep thenLeft char(c) map { (s, l) -> listOf(s) + l }).opt
 
     private val JSON_ARRAY: Parser<Char, JSon> =
             structure(lazy { JSON }, '[', ',', ']') map { JSonArray(it.orEmpty()) }

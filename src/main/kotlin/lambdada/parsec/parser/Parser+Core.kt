@@ -41,7 +41,7 @@ fun <I, A> lazy(f: () -> Parser<I, A>): Parser<I, A> = { f()(it) }
 // Backtracking
 //
 
-fun <I, A> doTry(p: Parser<I, A>): Parser<I, A> = { p(it).fold({ it }, { Reject(it.location, false) }) }
+fun <I, A> `try`(p: Parser<I, A>): Parser<I, A> = { p(it).fold({ it }, { Reject(it.location, false) }) }
 
 //
 // Lookahead / Breaks ll(1) limitation

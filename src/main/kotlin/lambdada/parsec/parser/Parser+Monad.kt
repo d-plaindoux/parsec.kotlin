@@ -8,8 +8,13 @@ import lambdada.parsec.parser.Response.Reject
 // Parser providing pseudo-Monadic ADT
 //
 
-infix fun <I, A, B> Parser<I, A>.map(f: (A) -> B): Parser<I, B> =
-        { this(it).fold({ Accept(f(it.value), it.input, it.consumed) }, { Reject(it.location, it.consumed) }) }
+infix fun <I, A, B> Parser<I, A>.map(f: (A) -> B): Parser<I, B> = {
+    this(it).fold({
+        Accept(f(it.value), it.input, it.consumed)
+    }, {
+        Reject(it.location, it.consumed)
+    })
+}
 
 fun <I, A> join(p: Parser<I, Parser<I, A>>): Parser<I, A> = {
     val a = p(it)
