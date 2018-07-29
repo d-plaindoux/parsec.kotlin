@@ -37,7 +37,7 @@ fun EXPR() =
 
 This material has been designed for a [Lambdada](http://lambdada.org) 
 session in order to explore the Kotlin language implementing a library
-with intensive function composition.  
+with intensive function composition. A [presentation of this library](http://d.plaindoux.free.fr/talks/sunny-tech/kotlin-parsec/kotlin-parsec.html) has been given during the first [SunnyTech conference](https://sunny-tech.io/) 
 
 # License
 
