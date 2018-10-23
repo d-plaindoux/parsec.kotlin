@@ -8,6 +8,29 @@
 A [parser combinator library](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper-letter.pdf)
 implementation from scratch in [Kotlin](https://kotlinlang.org).
 
+# How to use
+## import
+
+```kotlin
+import lambdada.parsec.parser.* // combinators, e.g. string, char, not, ...
+import lambdada.parsec.parser.Response.* // for reading the parser result (Accept, Reject)
+import lambdada.parsec.io.Reader // for running parsers (Reader)
+```
+
+## Run the parser
+
+```kotlin
+// The example for a `Parser<Char, List<String>>`
+val foo: Parser<Char, List<Char>> = not(char(',')).rep
+val input = Reader.string("hello, parsec!")
+val result = foo(input)
+when (result) {
+    is Accept -> println("good")
+    is Reject -> println("bad")
+}
+// good
+```
+
 # Examples
 
 ## CSV
