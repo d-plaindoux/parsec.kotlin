@@ -7,17 +7,17 @@ import lambdada.parsec.utils.Location
 // Response data structure for Parser Combinator
 //
 
-sealed class Response<I, A>(open val consumed: Boolean) {
+sealed class Response<I, out A>(open val consumed: Boolean) {
 
     //
     // Possible Responses
     //
 
-    data class Accept<I, A>(val value: A,
+    data class Accept<I, out A>(val value: A,
                             val input: Reader<I>,
                             override val consumed: Boolean) : Response<I, A>(consumed)
 
-    data class Reject<I, A>(val location: Location,
+    data class Reject<I, out A>(val location: Location,
                             override val consumed: Boolean) : Response<I, A>(consumed)
 
     //

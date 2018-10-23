@@ -3,7 +3,7 @@ package lambdada.parsec.io
 import lambdada.parsec.utils.Location
 import java.net.URL
 
-interface Reader<A> {
+interface Reader<out A> {
 
     fun location(): Location
     fun read(): Pair<A, Reader<A>>?
