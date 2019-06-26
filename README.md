@@ -47,7 +47,7 @@ val csvline  = item then (char(',') then item).optrep
 
 ```kotlin
 // SEXPR ::= '(' EXPR ')' | FLOAT
-// EXPR  ::= SEPXR (('+'|'*') EXPR)?
+// EXPR  ::= SEXPR (('+'|'*') EXPR)?
 
 fun SEXPR() =
     lazy { char('(') then EXPR() then char(')') or FLOAT }
